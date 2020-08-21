@@ -13,7 +13,7 @@ Created on Sat Aug  3 23:52:45 2019
     - 1.3.0   
     - 1.3.1
     - 1.4.0: add calculator
-    - 1.4.1: Variable name changes; fix width of output table column
+    - 1.5.0: Variable name changes; fix width of output table column
 
 # next version
 - include removing function
