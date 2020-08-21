@@ -13,14 +13,14 @@ Created on Sat Aug  3 23:52:45 2019
     - 1.3.0   
     - 1.3.1
     - 1.4.0: add calculator
-    - 1.5.0: Variable name changes; fix width of output table column
+    - 1.5.0: calculator triggering part
 
 # next version
 - include removing function
 
 """
 
-__version__ = '1.5.0'
+__version__ = '1.5.1'
 
 
 import pickle
@@ -164,14 +164,14 @@ def main():
         elif str_input in ['hi', 'hello']:
             print('HI')
             #break
-        # '''
-        # elif '+' in str_input:
+        elif str_input in ['*cal', '*c']:
             str_input = input('\nCalculator >>> ')
-            # try:
-                # print(eval(str_input))
-            # except:
-                # print('*** error ***')
-        # '''
+            try:
+                result_cal = eval(str_input)
+                print('>>>', result_cal)
+            except:
+                print('formula error !')
+                pass
         elif str_input in ['*help', '*h']:
             print('\n# Type "*addterm", "*add1" to add search term linked to someone. \n# Type "*addinfo" or "*add2" to add additional info to someone. \n# Type "exit", "ex" to leave.')
         else:
