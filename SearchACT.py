@@ -15,6 +15,7 @@ Created on Sat Aug  3 23:52:45 2019
     - 1.4.0: add calculator
     - 1.5.0: calculator triggering part
     - 1.5.1: caculator loop inside until exit
+    - 1.5.2: small change
 # next version
 - include removing function
 
@@ -46,20 +47,21 @@ PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, r'_DICT_KEY_CONTACTs.pickle')
 PATH_DICT_TERM_KEY = path.join(PATH_OF_SCRIPT, '_dict_terms_key.pickle')
 DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
 DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
-t = 0
+LI_EXIST_WORDS = ['exit', 'bye', 'ex', 'bye bye', 'quit']
+#t = 0 #?
 
 def add_searchTerm_to_key():
     #from os import path
     #global DICT_KEY_CONTACT
     #global DICT_TERM_KEY
     str_input_KEY = input('Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit. >>> ').lower()
-    if str_input_KEY in ['EX', 'exit', 'EXIT', 'QUIT']:
+    if str_input_KEY in LI_EXIST_WORDS:
         return 0
     elif str_input_KEY not in DICT_KEY_CONTACT.keys():
         print('*** The ID not exist. ***')
         return 0
     str_input_Term = input('Type the new search term or type "exit" to exit.\n>>> ').lower()
-    if str_input_Term in ['EX', 'exit', 'EXIT', 'QUIT']:
+    if str_input_Term in LI_EXIST_WORDS:
         return 0
         
     DICT_TERM_KEY.setdefault(str_input_Term.lower(), set()).add(str_input_KEY)
@@ -70,14 +72,14 @@ def add_searchTerm_to_key():
 def add_contactInfo():
     #from os import path
     str_input_KEY = input('Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit.\n>>> ').lower()
-    if str_input_KEY in ['EX', 'exit', 'EXIT', 'QUIT']:
+    if str_input_KEY in LI_EXIST_WORDS:
         return 0
     elif str_input_KEY not in DICT_KEY_CONTACT.keys():
         print('*** The ID not exist. ***')
         return 0
     
     str_add_info = input('Type the new info of the person or type "exit" to exit.\n>>> ').lower()
-    if str_add_info in ['EX', 'exit', 'EXIT', 'QUIT']:
+    if str_add_info in LI_EXIST_WORDS:
         return 0
     DICT_KEY_CONTACT[str_input_KEY].append(str_add_info)
     save_obj_to_pickle(path.splitext(PATH_DICT_KEY_CONTACT)[0], DICT_KEY_CONTACT)
@@ -107,6 +109,7 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
     
 # main process
 def main():
+    print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
 #    global DICT_KEY_CONTACT, DICT_TERM_KEY,  PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY    
     while True:
         str_input = input('\nSeach >>> ').lower()
@@ -159,7 +162,7 @@ def main():
             '''
         elif str_input.startswith('$'):
             print(eval(str_input[1:]))
-        elif str_input in ['exit', 'bye', 'ex', 'bye bye', 'quit']:
+        elif str_input in LI_EXIST_WORDS:
             break
         elif str_input in ['hi', 'hello']:
             print('HI')
@@ -168,7 +171,7 @@ def main():
             print('Caculation_mode:')
             while True:
                 str_input = input('\nCalculator >>> ')
-                if str_input in ['exit', 'bye', 'ex', 'bye bye', 'quit']:
+                if str_input in LI_EXIST_WORDS:
                     break
                 else:
                     try:
@@ -184,5 +187,4 @@ def main():
 
 
 if __name__ == '__main__':
-    print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
     main()
