@@ -1,0 +1,3 @@
+# created by pyinstaller
+dist/
+build/
