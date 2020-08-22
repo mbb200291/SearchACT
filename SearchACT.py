@@ -14,7 +14,7 @@ Created on Sat Aug  3 23:52:45 2019
     - 1.3.1
     - 1.4.0: add calculator
     - 1.5.0: calculator triggering part
-
+    - 1.5.1: caculator loop inside until exit
 # next version
 - include removing function
 
@@ -26,6 +26,8 @@ __version__ = '1.5.1'
 import pickle
 from sys import argv
 from os import path
+import msvcrt
+import time
 
 #import sys
 
@@ -44,13 +46,13 @@ PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, r'_DICT_KEY_CONTACTs.pickle')
 PATH_DICT_TERM_KEY = path.join(PATH_OF_SCRIPT, '_dict_terms_key.pickle')
 DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
 DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
-
+t = 0
 
 def add_searchTerm_to_key():
     #from os import path
     #global DICT_KEY_CONTACT
     #global DICT_TERM_KEY
-    str_input_KEY = input('Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit.\n>>> ').lower()
+    str_input_KEY = input('Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit. >>> ').lower()
     if str_input_KEY in ['EX', 'exit', 'EXIT', 'QUIT']:
         return 0
     elif str_input_KEY not in DICT_KEY_CONTACT.keys():
@@ -105,11 +107,9 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
     
 # main process
 def main():
-#    global DICT_KEY_CONTACT, DICT_TERM_KEY,  PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY
-
-    
+#    global DICT_KEY_CONTACT, DICT_TERM_KEY,  PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY    
     while True:
-        str_input = input('\n>>> ').lower()
+        str_input = input('\nSeach >>> ').lower()
         if str_input in DICT_TERM_KEY:
             ## matched
             for k in DICT_TERM_KEY[str_input]:
@@ -165,13 +165,18 @@ def main():
             print('HI')
             #break
         elif str_input in ['*cal', '*c']:
-            str_input = input('\nCalculator >>> ')
-            try:
-                result_cal = eval(str_input)
-                print('>>>', result_cal)
-            except:
-                print('formula error !')
-                pass
+            print('Caculation_mode:')
+            while True:
+                str_input = input('\nCalculator >>> ')
+                if str_input in ['exit', 'bye', 'ex', 'bye bye', 'quit']:
+                    break
+                else:
+                    try:
+                        result_cal = eval(str_input)
+                        print('answer: ', result_cal)
+                    except:
+                        print('formula error !')
+                        pass
         elif str_input in ['*help', '*h']:
             print('\n# Type "*addterm", "*add1" to add search term linked to someone. \n# Type "*addinfo" or "*add2" to add additional info to someone. \n# Type "exit", "ex" to leave.')
         else:
@@ -179,5 +184,5 @@ def main():
 
 
 if __name__ == '__main__':
-    print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.')
+    print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
     main()
