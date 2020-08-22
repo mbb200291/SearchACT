@@ -14,7 +14,7 @@ Created on Sat Aug  3 23:52:45 2019
     - 1.3.1
     - 1.4.0: add calculator
     - 1.5.0: calculator triggering part
-
+    - 1.5.1: caculator loop inside until exit
 # next version
 - include removing function
 
