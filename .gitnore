@@ -1,0 +1,12 @@
+# 檔案名稱 .gitignore
+
+# 忽略 SearchACT.spec 檔案
+SearchACT.spec
+
+# 忽略 資料夾
+__pycache__/
+build/
+dist/
+
+
+
