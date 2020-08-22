@@ -17,6 +17,6 @@ python UpdataContact.py
 
 ## compile as .exe on windows (recommend)
 ```
-pyinstaller -F SearchACT.py
+pyinstaller -F SearchACT.py -i icon.ico
 pyinstaller -F UpdataContact.py
 ```

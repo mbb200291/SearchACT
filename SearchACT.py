@@ -4,7 +4,7 @@
 Created on Sat Aug  3 23:52:45 2019
 
 @author: linbangqi
-@Co-author: bruce?
+@Co-author: bruce
 # Version log:
     - 1.0.0
     - 1.1.0:
@@ -26,8 +26,6 @@ __version__ = '1.5.1'
 import pickle
 from sys import argv
 from os import path
-import msvcrt
-import time
 
 #import sys
 
@@ -46,7 +44,6 @@ PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, r'_DICT_KEY_CONTACTs.pickle')
 PATH_DICT_TERM_KEY = path.join(PATH_OF_SCRIPT, '_dict_terms_key.pickle')
 DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
 DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
-t = 0
 
 def add_searchTerm_to_key():
     #from os import path
