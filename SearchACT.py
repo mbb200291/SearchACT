@@ -14,6 +14,7 @@ Created on Sat Aug  3 23:52:45 2019
     - 1.3.1
     - 1.4.0: add calculator
     - 1.5.0: calculator triggering part
+    - 1.5.1: modify a file name for other OS
 
 # next version
 - include removing function
