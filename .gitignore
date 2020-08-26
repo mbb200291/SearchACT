@@ -3,8 +3,12 @@
 # 忽略 SearchACT.spec 檔案
 SearchACT.spec
 *.exe
+
 # 忽略 資料夾
 __pycache__/
 build/
 dist/
 
+# personal data
+*.xlsx
+*.pickle
