@@ -20,3 +20,8 @@ python UpdataContact.py
 pyinstaller -F SearchACT.py
 pyinstaller -F UpdataContact.py
 ```
+
+## install requirements by pip
+```
+pip install -r requirements.txt
+```
