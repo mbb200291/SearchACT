@@ -10,17 +10,19 @@ Created on Sat Aug  3 23:52:45 2019
     - 1.1.0:
        - organize by id to value
        - include more keys
-    - 1.3.0   
+    - 1.3.0
     - 1.3.1
     - 1.4.0: add calculator
     - 1.5.0: calculator triggering part
-    - 1.5.1: caculator loop inside until exit
+    - 1.5.1: modify a file name for other OS
+    - 1.5.2: caculator loop inside until exit
+
 # next version
 - include removing function
 
 """
 
-__version__ = '1.5.1'
+__version__ = '1.5.2'
 
 
 import pickle
@@ -40,7 +42,7 @@ def read_pickle(path_):
 
 
 PATH_OF_SCRIPT = path.dirname(argv[0])
-PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, r'_DICT_KEY_CONTACTs.pickle')
+PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, '_dict_key_contacts.pickle')
 PATH_DICT_TERM_KEY = path.join(PATH_OF_SCRIPT, '_dict_terms_key.pickle')
 DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
 DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
@@ -58,7 +60,7 @@ def add_searchTerm_to_key():
     str_input_Term = input('Type the new search term or type "exit" to exit.\n>>> ').lower()
     if str_input_Term in ['EX', 'exit', 'EXIT', 'QUIT']:
         return 0
-        
+
     DICT_TERM_KEY.setdefault(str_input_Term.lower(), set()).add(str_input_KEY)
     save_obj_to_pickle(path.splitext(PATH_DICT_TERM_KEY)[0], DICT_TERM_KEY)
     print(f'Successfuly add new search terms. "{str_input_Term}":"{str_input_KEY}"')
@@ -72,7 +74,7 @@ def add_contactInfo():
     elif str_input_KEY not in DICT_KEY_CONTACT.keys():
         print('*** The ID not exist. ***')
         return 0
-    
+
     str_add_info = input('Type the new info of the person or type "exit" to exit.\n>>> ').lower()
     if str_add_info in ['EX', 'exit', 'EXIT', 'QUIT']:
         return 0
@@ -89,7 +91,7 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
                 temp_collect.add(k)
     for r in temp_collect:
         print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
-        
+
     ## within name matches
     print('\n---------------------')
     temp_collect2 = set()
@@ -101,7 +103,7 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
         print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
     if temp_collect==set() and temp_collect2==set():
         print(f'\n "{str_input}" not in list. or type "exit" to exit')
-    
+
 # main process
 def main():
 #    global DICT_KEY_CONTACT, DICT_TERM_KEY,  PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY    
@@ -111,7 +113,7 @@ def main():
             ## matched
             for k in DICT_TERM_KEY[str_input]:
                 print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[k]))
-        
+
         # add search term function
         elif str_input in ['*addterm', '*add1']:
             print('into adding mode')
@@ -140,12 +142,12 @@ def main():
             else:
                 break
             """
-        
+
         elif str_input in ['*rebuild', '*rb']:
             pass
             '''
             import updata_contact
-            print('** this operation will wipe out the term created by your own. Sure?') 
+            print('** this operation will wipe out the term created by your own. Sure?')
             str_input = input('\n(Y/N) >>> ').lower()
             if str_input == 'y':
                 updata_contact.MakeDict(updata_contact.locate_contact_file())
