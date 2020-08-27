@@ -42,7 +42,7 @@ def remove_blank(tab):
     #First, find NaN entries in first column
     blank_row_bool = tab.iloc[:,4].isna()
     #Next, get index of first NaN entry
-    blank_row_index =  [i for i, x in enumerate(blank_row_bool) if x] [0]
+    blank_row_index =  [i for i, x in enumerate(blank_row_bool) if x][0]
     #Finally, restrict dataframe to rows before the first NaN entry
     return tab.iloc[:(blank_row_index)]
     
@@ -56,7 +56,7 @@ def read_excel(path_contact):
     else:
         print('*** Contact file not exist')
         return None
-        
+
 def MakeDict(path_contact):#, _nrows):
     ## Read excel
     contacts, excel_file_name = read_excel(path_contact)
@@ -65,6 +65,11 @@ def MakeDict(path_contact):#, _nrows):
     ## Make dictionary
     dict_to_PhoneNum = {} # 
     dict_PhoneNum_Info = {'*version':excel_file_name, '*ver':excel_file_name}
+    
+    DI_Apartment_Abbrev = {
+        '醫藥資訊部': 'PM',
+        '次世代定序部': 'NGS'
+    }
     for i,R in contacts.iterrows():
         print(R.姓名)
         #print(R['英 文 名'])
@@ -115,6 +120,8 @@ def MakeDict(path_contact):#, _nrows):
         dict_to_PhoneNum.setdefault(str(CellPhone), set()).add(KEY)
         # by department
         dict_to_PhoneNum.setdefault(str(Department), set()).add(KEY)
+        ## by department's abbreviation
+        dict_to_PhoneNum.setdefault(DI_Apartment_Abbrev.get(str(Department), str(Department)), set()).add(KEY)
 
 
     #print(os.path.split(sys.path[0])[0])
