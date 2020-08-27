@@ -4,7 +4,7 @@ This is a quick tool to search contacts in ACT genomics.
 ## Put contact file into directory
 
 ```
-
+\\tp-fs01\Public\公司通訊錄及座位表
 ```
 
 ## quick use
