@@ -19,13 +19,15 @@ Version log:
     - caculator loop inside until exit
     - caculator loop inside until exit
     - modify a file name for other OS
-    
+- 1.7.0:
+    - multiple rule syntax
+
 Next version
 - include removing function
 
 """
 
-__version__ = '1.5.2'
+__version__ = '1.7.0'
 
 
 import pickle
@@ -104,6 +106,14 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
         print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
     if temp_collect==set() and temp_collect2==set():
         print(f'\n "{str_input}" not in list. or type "exit" to exit')
+
+def mul_rule(str_input):
+    '''
+    Syntax for and  or condition.
+
+    '''
+    
+    pass
 
 # main process
 def main():
