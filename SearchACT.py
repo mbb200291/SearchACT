@@ -105,7 +105,6 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
     if temp_collect==set() and temp_collect2==set():
         print(f'\n "{str_input}" not in list. or type "exit" to exit')
 
-
 def cal(s):
     try:
         if not any(x in s for x in ['+','-','*', '/']):
@@ -143,10 +142,10 @@ def parse(s):
                     s = "".join((s[:l[-1]],str(cal(s[l[-1]+1:r[-1]])),s[r[-1]+1:]))
                     l.pop()
                     r.pop()
-        return cal(s)
+        return str(cal(s))
     except Exception as e:
         return f'Error! Code: {type(e).__name__}, Message, {str(e)}'
-        
+
 # main process
 def main():
     print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
@@ -215,8 +214,7 @@ def main():
                     break
                 else:
                     try:
-                        result_cal = eval(str_input)
-                        print('answer: ', result_cal)
+                        print('answer: ', parse(str_input))
                     except:
                         print('formula error !')
                         pass
