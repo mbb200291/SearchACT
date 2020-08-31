@@ -105,6 +105,48 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
     if temp_collect==set() and temp_collect2==set():
         print(f'\n "{str_input}" not in list. or type "exit" to exit')
 
+
+def cal(s):
+    try:
+        if not any(x in s for x in ['+','-','*', '/']):
+            return float(s)
+        for i in ['+','-','*', '/']:
+            left, op, right = s.partition(i)
+            if op in ['*', '/','+','-']:
+                if op == '*':
+                    return(cal(left) * cal(right))
+                elif op == '/':
+                    return(cal(left) / cal(right))
+                elif op == '+':
+                    return(cal(left) + cal(right))
+                elif op == '-':
+                    return(cal(left) - cal(right))
+    except Exception as e:
+        return f'Error! Code: {type(e).__name__}, Message, {str(e)}'
+
+def parse(s):
+    try:
+        if s == '':
+            return 'Empty string!'
+        l = []
+        r = []
+        s = s.replace(' ','')
+        for p in range(len(s)):
+            if s[p] == '(' and len(r) < 1:
+                l.append(p)
+            elif s[p] == ')':
+                if len(l) == 0:
+                    raise 
+                else:
+                    r.append(p)
+                    cal(s[l[-1]+1:r[-1]])
+                    s = "".join((s[:l[-1]],str(cal(s[l[-1]+1:r[-1]])),s[r[-1]+1:]))
+                    l.pop()
+                    r.pop()
+        return cal(s)
+    except Exception as e:
+        return f'Error! Code: {type(e).__name__}, Message, {str(e)}'
+        
 # main process
 def main():
     print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
