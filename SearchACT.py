@@ -107,12 +107,11 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
     if temp_collect==set() and temp_collect2==set():
         print(f'\n "{str_input}" not in list. or type "exit" to exit')
 
-def search_by_loop(str_input):
+def search(str_input):
     '''
     Return by the matched keys by str_input.
 
     '''
-
     set_match_key = set()
     for term in DICT_TERM_KEY:
         if str_input in term:
@@ -120,21 +119,65 @@ def search_by_loop(str_input):
                 set_match_key.add(key)
     return set_match_key
 
-def mul_rule(str_input):
-    '''
-    Syntax for and/or condition.
+def cal_multi_condi_li(li_ele):
+    #print(li_ele)
+    li_ele = [x for x in li_ele if x]
+    if len(li_ele)==1 and type(li_ele[0])==str:
+        return search(li_ele[0])
+    elif len(li_ele)==1 and type(li_ele[0])==set:
+        return li_ele[0]
+    elif len(li_ele)>1 and not [x for x in li_ele if x in ['|', '&']]:
+        print('should not exist')
+        set_ = set()
+        for i in li_ele:
+            set_.update(search(i))
+        return set_
+    else:
+        for i in [x for x in li_ele if x in ['|', '&']]:
+            offset = li_ele.index(i)
+            left, op, right = li_ele[:offset], li_ele[offset:offset+1], li_ele[offset+1:]
+            if op == ['&']:
+                return cal_multi_condi_li(left) & cal_multi_condi_li(right)
+            elif op == ['|']:
+                return cal_multi_condi_li(left) | cal_multi_condi_li(right)
 
-    '''
-    
-    pass
-
+#%%
+def parse_formula(s):
+    if s == '':
+        return 'Empty string!'
+    l = []
+    r = []
+    s = s.replace(' ','')
+    li_element = []
+    temp = ''
+    for e in s:
+        if e == '(':
+            li_element.append(temp)
+            temp = ''
+            l.append(len(li_element))
+        elif e == ')':
+            li_element.append(temp)
+            temp = ''
+            r.append(len(li_element))
+            li_element[l[-1]:r[-1]+1] = [cal_multi_condi_li(li_element[l[-1]:r[-1]+1])] + ['']*(r[-1]+1 - l[-1] - 1)
+            l.pop()
+            r.pop()
+        elif e in '&|':
+            li_element.append(temp)
+            temp = ''
+            li_element.append(e)
+        else:
+            temp += e
+    li_element.append(temp)    
+    return cal_multi_condi_li(li_element)
 
 def cal(s):
+    s = s.replace(' ', '')
     if not any(x in s for x in ['+','-','*', '/']):
         return float(s)
     for i in ['+','-','*', '/']:
         left, op, right = s.partition(i)
-        if op in ['*', '/','+','-']:
+        if op in ['*', '/','+','-']: 
             if op == '*':
                 return(cal(left) * cal(right))
             elif op == '/':
@@ -143,7 +186,6 @@ def cal(s):
                 return(cal(left) + cal(right))
             elif op == '-':
                 return(cal(left) - cal(right))
-    
 def parse(s):
     if s == '':
         return 'Empty string!'
@@ -152,8 +194,9 @@ def parse(s):
     s = s.replace(' ','')
     
     for p in range(len(s)):
-        if any(x in s for x in ['(',')']):   
-            if s[p] == '(' and len(r) < 1:
+        print(len(s), p)
+        if any(x in s for x in ['(', ')']):   
+            if s[p] == '(': #
                 l.append(p)
             elif s[p] == ')':
                 if len(l) == 0:
@@ -161,9 +204,11 @@ def parse(s):
                 else:
                     r.append(p)
                     ans = cal(s[l[-1]+1:r[-1]])
-                    s = "".join((s[:l[-1]],str(ans),s[r[-1]+1:]))
+                    len_bra = r[-1] - l[-1] +1
+                    s = "".join((s[:l[-1]], str(ans)+' '*(len_bra-len(str(ans))), s[r[-1]+1:]))
                     l.pop()
                     r.pop()
+        
     return str(cal(s))
 
 # main process
@@ -243,7 +288,12 @@ def main():
             print('\n# Type "*addterm", "*add1" to add search term linked to someone. \n# Type "*addinfo" or "*add2" to add additional info to someone. \n# Type "exit", "ex" to leave.')
         else:
             #raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT)
-            set_matches = search_by_loop(str_input)
+            try:
+                #set_matches = search(str_input)
+                set_matches = parse_formula(str_input)
+            except:
+                print('formula error !')
+                pass
             for r in set_matches:
                 print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
             if not set_matches:

@@ -126,6 +126,8 @@ def MakeDict(path_contact):#, _nrows):
 
         ## second part: query items to key
         dict_to_PhoneNum.setdefault(ChnName, set()).add(KEY)
+        dict_to_PhoneNum.setdefault(ChnName[:-1], set()).add(KEY)
+        dict_to_PhoneNum.setdefault(ChnName[-1], set()).add(KEY)
         dict_to_PhoneNum.setdefault(EngName.lower(), set()).add(KEY)
         dict_to_PhoneNum.setdefault(EngName_dd.lower(), set()).add(KEY)
         dict_to_PhoneNum.setdefault(EngName_dd2.lower(), set()).add(KEY)
