@@ -107,27 +107,79 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
     if temp_collect==set() and temp_collect2==set():
         print(f'\n "{str_input}" not in list. or type "exit" to exit')
 
+def search_by_loop(str_input):
+    '''
+    Return by the matched keys by str_input.
+
+    '''
+
+    set_match_key = set()
+    for term in DICT_TERM_KEY:
+        if str_input in term:
+            for key in DICT_TERM_KEY[term]:
+                set_match_key.add(key)
+    return set_match_key
+
 def mul_rule(str_input):
     '''
-    Syntax for and  or condition.
+    Syntax for and or condition.
 
     '''
     
     pass
+
+
+def cal(s):
+    if not any(x in s for x in ['+','-','*', '/']):
+        return float(s)
+    for i in ['+','-','*', '/']:
+        left, op, right = s.partition(i)
+        if op in ['*', '/','+','-']:
+            if op == '*':
+                return(cal(left) * cal(right))
+            elif op == '/':
+                return(cal(left) / cal(right))
+            elif op == '+':
+                return(cal(left) + cal(right))
+            elif op == '-':
+                return(cal(left) - cal(right))
+    
+def parse(s):
+    if s == '':
+        return 'Empty string!'
+    l = []
+    r = []
+    s = s.replace(' ','')
+    
+    for p in range(len(s)):
+        if any(x in s for x in ['(',')']):   
+            if s[p] == '(' and len(r) < 1:
+                l.append(p)
+            elif s[p] == ')':
+                if len(l) == 0:
+                    print('left bracket first')
+                else:
+                    r.append(p)
+                    ans = cal(s[l[-1]+1:r[-1]])
+                    s = "".join((s[:l[-1]],str(ans),s[r[-1]+1:]))
+                    l.pop()
+                    r.pop()
+    return str(cal(s))
 
 # main process
 def main():
     print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
 #    global DICT_KEY_CONTACT, DICT_TERM_KEY,  PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY    
     while True:
-        str_input = input('\nSeach >>> ').lower()
+        str_input = input('\nSeach >>> ')#.lower()
+        '''
         if str_input in DICT_TERM_KEY:
             ## matched
             for k in DICT_TERM_KEY[str_input]:
                 print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[k]))
-
+        '''
         # add search term function
-        elif str_input in ['*addterm', '*add1']:
+        if str_input in ['*addterm', '*add1']:
             print('into adding mode')
             ans = add_searchTerm_to_key()
             if ans == 0:
@@ -183,15 +235,20 @@ def main():
                     break
                 else:
                     try:
-                        result_cal = eval(str_input)
-                        print('answer: ', result_cal)
+                        print('answer: ', parse(str_input))
                     except:
                         print('formula error !')
                         pass
         elif str_input in ['*help', '*h']:
             print('\n# Type "*addterm", "*add1" to add search term linked to someone. \n# Type "*addinfo" or "*add2" to add additional info to someone. \n# Type "exit", "ex" to leave.')
         else:
-            raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT)
+            #raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT)
+            set_matches = search_by_loop(str_input)
+            for r in set_matches:
+                print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
+            if not set_matches:
+                print(f'\n "{str_input}" not in list. or type "exit" to exit')
+
 
 
 if __name__ == '__main__':

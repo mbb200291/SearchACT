@@ -27,9 +27,11 @@ python UpdataContact.py
 ```
 pyinstaller -F SearchACT.py -i icon.ico
 pyinstaller -F UpdataContact.py
+pyinstaller -F SearchACT-GUI.py
 ```
 
 ## install requirements by pip
 ```
 pip install -r requirements.txt
 ```
+
