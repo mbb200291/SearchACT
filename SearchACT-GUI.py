@@ -121,8 +121,44 @@ class SearchACTController:
         self.view.outputContainer.setData(result)
 
     def calculate(self):
+        def cal(s):
+            if not any(x in s for x in ['+','-','*', '/']):
+                return float(s)
+            for i in ['+','-','*', '/']:
+                left, op, right = s.partition(i)
+                if op in ['*', '/','+','-']:
+                    if op == '*':
+                        return(cal(left) * cal(right))
+                    elif op == '/':
+                        return(cal(left) / cal(right))
+                    elif op == '+':
+                        return(cal(left) + cal(right))
+                    elif op == '-':
+                        return(cal(left) - cal(right))
+            
+        def parse(s):
+            if s == '':
+                return 'Empty string!'
+            l = []
+            r = []
+            s = s.replace(' ','')
+            
+            for p in range(len(s)):
+                if any(x in s for x in ['(',')']):   
+                    if s[p] == '(' and len(r) < 1:
+                        l.append(p)
+                    elif s[p] == ')':
+                        if len(l) == 0:
+                            print('left bracket first')
+                        else:
+                            r.append(p)
+                            ans = cal(s[l[-1]+1:r[-1]])
+                            s = "".join((s[:l[-1]],str(ans),s[r[-1]+1:]))
+                            l.pop()
+                            r.pop()
+            return str(cal(s))
         text = self.view.inputText.get()
-        result = self.model.calculate(text)
+        result = self.model.calculate(parse(text))
         self.view.outputContainer.setData(result)
 
 if __name__ == '__main__':

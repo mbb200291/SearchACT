@@ -106,45 +106,41 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
         print(f'\n "{str_input}" not in list. or type "exit" to exit')
 
 def cal(s):
-    try:
-        if not any(x in s for x in ['+','-','*', '/']):
-            return float(s)
-        for i in ['+','-','*', '/']:
-            left, op, right = s.partition(i)
-            if op in ['*', '/','+','-']:
-                if op == '*':
-                    return(cal(left) * cal(right))
-                elif op == '/':
-                    return(cal(left) / cal(right))
-                elif op == '+':
-                    return(cal(left) + cal(right))
-                elif op == '-':
-                    return(cal(left) - cal(right))
-    except Exception as e:
-        return f'Error! Code: {type(e).__name__}, Message, {str(e)}'
-
+    if not any(x in s for x in ['+','-','*', '/']):
+        return float(s)
+    for i in ['+','-','*', '/']:
+        left, op, right = s.partition(i)
+        if op in ['*', '/','+','-']:
+            if op == '*':
+                return(cal(left) * cal(right))
+            elif op == '/':
+                return(cal(left) / cal(right))
+            elif op == '+':
+                return(cal(left) + cal(right))
+            elif op == '-':
+                return(cal(left) - cal(right))
+    
 def parse(s):
-    try:
-        if s == '':
-            return 'Empty string!'
-        l = []
-        r = []
-        s = s.replace(' ','')
-        for p in range(len(s)):
+    if s == '':
+        return 'Empty string!'
+    l = []
+    r = []
+    s = s.replace(' ','')
+    
+    for p in range(len(s)):
+        if any(x in s for x in ['(',')']):   
             if s[p] == '(' and len(r) < 1:
                 l.append(p)
             elif s[p] == ')':
                 if len(l) == 0:
-                    raise 
+                    print('left bracket first')
                 else:
                     r.append(p)
-                    cal(s[l[-1]+1:r[-1]])
-                    s = "".join((s[:l[-1]],str(cal(s[l[-1]+1:r[-1]])),s[r[-1]+1:]))
+                    ans = cal(s[l[-1]+1:r[-1]])
+                    s = "".join((s[:l[-1]],str(ans),s[r[-1]+1:]))
                     l.pop()
                     r.pop()
-        return str(cal(s))
-    except Exception as e:
-        return f'Error! Code: {type(e).__name__}, Message, {str(e)}'
+    return str(cal(s))
 
 # main process
 def main():
