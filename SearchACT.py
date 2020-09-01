@@ -17,10 +17,11 @@ Version log:
 - 1.5.0: calculator triggering part
 - 1.6.0: 
     - caculator loop inside until exit
-    - caculator loop inside until exit
     - modify a file name for other OS
 - 1.7.0:
     - multiple rule syntax
+    - calculator re-implement
+    - search key by string matching
 
 Next version
 - include removing function
@@ -143,7 +144,7 @@ def cal_multi_condi_li(li_ele):
 
 def parse_formula(s):
     if s == '':
-        return 'Empty string!'
+        return set()
     l = []
     r = []
     s = s.replace(' ','')
