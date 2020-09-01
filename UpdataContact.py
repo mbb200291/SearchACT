@@ -8,17 +8,17 @@ version:
  -1.5.1:
  - new rule
  - 1.6.0: update contact by searching contact file("行動基因通訊錄") within same folder of this script
- - 1.7.0: 
- 
+ - 1.7.0: modify some code for other os system
+
 next version:
  - keep customize content
- 
+
 '''
 
 
 import pandas as pd
 from sys import argv
-from os import path, listdir, splitext
+from os import path, listdir
 import pickle
 
 __version__ = '1.7.0'
@@ -32,12 +32,13 @@ def read_pickle(path_):
         return pickle.load(file)
 
 def locate_contact_file():
-    cwd = path.dirname(argv[0])
+    cwd = path.dirname(path.abspath(__file__))
+    print(cwd)
     path_contact = sorted([x for x in listdir(cwd) if ".xlsx" in x and not x.startswith('~$')])[-1]
     #print([x for x in os.listdir(cwd) if ".xlsx" in x])
     print('# Read file:', path_contact )
     return path.join(cwd, path_contact)
-        
+
 def remove_blank(tab):
     #First, find NaN entries in first column
     blank_row_bool = tab.iloc[:,4].isna()
@@ -45,14 +46,14 @@ def remove_blank(tab):
     blank_row_index =  [i for i, x in enumerate(blank_row_bool) if x][0]
     #Finally, restrict dataframe to rows before the first NaN entry
     return tab.iloc[:(blank_row_index)]
-    
+
 def read_excel(path_contact):
     if path.isfile(path_contact):
         #contacts = pd.read_excel(path_contact, nrows=nrows)
         contacts = remove_blank(pd.read_excel(path_contact))
         contacts.dropna(how="all", inplace=True)
 #        contacts = contacts.loc[(~contacts['信     箱'].isna()) & (contacts['信     箱'].str.contains("@"))]
-        return contacts, splitext(path_contact)[-1]
+        return contacts, path.splitext(path_contact)[-1]
     else:
         print('*** Contact file not exist')
         return None
@@ -63,7 +64,7 @@ def MakeDict(path_contact):#, _nrows):
     if type(contacts)!=pd.core.frame.DataFrame:
         return None
     ## Make dictionary
-    dict_to_PhoneNum = {} # 
+    dict_to_PhoneNum = {} #
     dict_PhoneNum_Info = {'*version':excel_file_name, '*ver':excel_file_name}
     
     DI_Apartment_Abbrev = {
@@ -81,9 +82,9 @@ def MakeDict(path_contact):#, _nrows):
         PhoneNum = R.分機
         CellPhone = R['手   機']
         Department = R['部門名稱']
-        
+
         KEY = MailAress.split('@')[0]
-        
+
         ## first part: key to result
         dict_PhoneNum_Info[KEY] = [str(x) for x in [ChnName, EngName, Department, MailAress, PhoneNum, CellPhone]]
 
@@ -137,11 +138,11 @@ def MakeDict(path_contact):#, _nrows):
         save_obj_to_pickle(path_term_key, read_pickle(path_term_key).update(dict_to_PhoneNum))
         save_obj_to_pickle(path_key_contact, read_pickle(path_key_contact).update(dict_PhoneNum_Info))
     '''
-    
+
 
 def main():
     print('# Loading')
     MakeDict(locate_contact_file())# int(sys.argv[2]))
-    
+
 if __name__ == '__main__':
     main()
