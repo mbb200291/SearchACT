@@ -194,7 +194,6 @@ def parse(s):
     s = s.replace(' ','')
     
     for p in range(len(s)):
-        print(len(s), p)
         if any(x in s for x in ['(', ')']):   
             if s[p] == '(': #
                 l.append(p)

@@ -15,6 +15,21 @@ python SearchACT.py # enter the interactive window
 
 >林邦齊        Ben Lin 人工智慧部      benlin@actgenomics.com  1624    0910-216-4
 
+>>> AI & ben  # multiple condtion to search
+
+>林邦齊        Ben Lin 人工智慧部      benlin@actgenomics.com  1624    0910-216-4 
+
+>>> (AI & ben) | bruce  # multiple condtion can using bracket to seperate
+ 
+>林邦齊        Ben Lin 人工智慧部      benlin@actgenomics.com  1624    0910-216-433
+
+>陳柏劭        Bruce Chen      次世代定序部    brucechen@actgenomics.com       1529    0936-141-661
+
+>>> *cal    # entering calculator mode
+Calculator >>> 1+1
+answer:  2.0
+Calculator >>> exit
+
 >>> ex  # type "ex" to leave
 ```
 
