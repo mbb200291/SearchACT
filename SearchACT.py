@@ -110,7 +110,6 @@ def cal(s,lop):
         return float(s)
     for i in ['+','-','*', '/']:
         left, op, right = s.partition(i)
-        print(i, [left, op, right])
         if op in ['+', '-','*','/']:
             if op == '*':
                 if right == '':
@@ -133,7 +132,6 @@ def cal(s,lop):
                     if lop == '':
                         lop = '-'
                     elif lop == '-':
-                        print('catch')
                         return(cal(left,lop) + cal(right,lop))   
                         lop = ''
                     return(cal(left,lop) - cal(right,lop))
@@ -159,7 +157,6 @@ def parse(s,lop=''):
                     l.pop()
                     r.pop()
                     break
-    print(s + ',last')
     if '+-' in s:
         s=s.replace('+-','-')
     elif '--' in s:
@@ -168,7 +165,6 @@ def parse(s,lop=''):
         s="".join(('-',s.replace('*-','*')))
     elif '/-' in s:
         s="".join(('-',s.replace('/-','/')))
-    print(s + ',modify')
     return str(cal(s,lop))
 
 # main process
