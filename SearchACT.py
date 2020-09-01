@@ -170,7 +170,7 @@ def parse_formula(s):
     li_element.append(temp)    
     return cal_multi_condi_li(li_element)
 
-""" # ben's modified --> fix some issue
+""" # ben's modified --> fix some issue 
 
 def cal(s):
     s = s.replace(' ', '')
@@ -211,13 +211,11 @@ def parse(s):
         
     return str(cal(s))
 """
-def cal(s):
-    s = s.replace(' ', '')
+def cal(s,lop):
     if not any(x in s for x in ['+','-','*', '/']):
         return float(s)
-    for i in [x for x in s if x in ['+','-','*', '/']]:
+    for i in ['+','-','*', '/']:
         left, op, right = s.partition(i)
-        if op in ['*', '/','+','-']: 
         if op in ['+', '-','*','/']:
             if op == '*':
                 if right == '':
