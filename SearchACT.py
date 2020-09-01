@@ -141,7 +141,6 @@ def cal_multi_condi_li(li_ele):
             elif op == ['|']:
                 return cal_multi_condi_li(left) | cal_multi_condi_li(right)
 
-#%%
 def parse_formula(s):
     if s == '':
         return 'Empty string!'
@@ -171,6 +170,8 @@ def parse_formula(s):
     li_element.append(temp)    
     return cal_multi_condi_li(li_element)
 
+""" # ben's modified --> fix some issue
+
 def cal(s):
     s = s.replace(' ', '')
     if not any(x in s for x in ['+','-','*', '/']):
@@ -195,7 +196,7 @@ def parse(s):
     
     for p in range(len(s)):
         if any(x in s for x in ['(', ')']):   
-            if s[p] == '(': #
+            if s[p] == '(':
                 l.append(p)
             elif s[p] == ')':
                 if len(l) == 0:
@@ -209,6 +210,70 @@ def parse(s):
                     r.pop()
         
     return str(cal(s))
+"""
+def cal(s):
+    s = s.replace(' ', '')
+    if not any(x in s for x in ['+','-','*', '/']):
+        return float(s)
+    for i in [x for x in s if x in ['+','-','*', '/']]:
+        left, op, right = s.partition(i)
+        if op in ['*', '/','+','-']: 
+        if op in ['+', '-','*','/']:
+            if op == '*':
+                if right == '':
+                    return(cal(left,lop))
+                else:
+                    return(cal(left,lop) * cal(right,lop))
+            elif op == '/':
+                if lop == '':
+                    lop = '/'
+                elif lop == '/':
+                    return(cal(left,lop) * cal(right,lop))   
+                    lop = ''
+                return(cal(left,lop) / cal(right,lop))
+            elif op == '+':
+                return(cal(left,lop) + cal(right,lop))
+            elif op == '-':
+                if left == '':
+                    return(cal('0-'+right,lop))
+                else:
+                    if lop == '':
+                        lop = '-'
+                    elif lop == '-':
+                        return(cal(left,lop) + cal(right,lop))   
+                        lop = ''
+                    return(cal(left,lop) - cal(right,lop))
+
+
+def parse(s,lop=''):
+    if s == '':
+        return 'Empty string!'
+    l = []
+    r = []
+    s = s.replace(' ','')
+    while any(x in s for x in ['(',')']):
+        for p in range(len(s)):
+            if s[p] == '(' and len(r) < 1:
+                l.append(p)
+            elif s[p] == ')':
+                if len(l) == 0:
+                    return('left bracket first!')
+                else:
+                    r.append(p)
+                    ans = cal(s[l[-1]+1:r[-1]],lop)
+                    s = "".join((s[:l[-1]],str(ans),s[r[-1]+1:]))
+                    l.pop()
+                    r.pop()
+                    break
+    if '+-' in s:
+        s=s.replace('+-','-')
+    elif '--' in s:
+        s=s.replace('--','+')
+    elif '*-' in s:
+        s="".join(('-',s.replace('*-','*')))
+    elif '/-' in s:
+        s="".join(('-',s.replace('/-','/')))
+    return str(cal(s,lop))
 
 # main process
 def main():

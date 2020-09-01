@@ -121,42 +121,67 @@ class SearchACTController:
         self.view.outputContainer.setData(result)
 
     def calculate(self):
-        def cal(s):
+        def cal(s,lop):
             if not any(x in s for x in ['+','-','*', '/']):
                 return float(s)
             for i in ['+','-','*', '/']:
                 left, op, right = s.partition(i)
-                if op in ['*', '/','+','-']:
+                if op in ['+', '-','*','/']:
                     if op == '*':
-                        return(cal(left) * cal(right))
+                        if right == '':
+                            return(cal(left,lop))
+                        else:
+                            return(cal(left,lop) * cal(right,lop))
                     elif op == '/':
-                        return(cal(left) / cal(right))
+                        if lop == '':
+                            lop = '/'
+                        elif lop == '/':
+                            return(cal(left,lop) * cal(right,lop))   
+                            lop = ''
+                        return(cal(left,lop) / cal(right,lop))
                     elif op == '+':
-                        return(cal(left) + cal(right))
+                        return(cal(left,lop) + cal(right,lop))
                     elif op == '-':
-                        return(cal(left) - cal(right))
-            
-        def parse(s):
+                        if left == '':
+                            return(cal('0-'+right,lop))
+                        else:
+                            if lop == '':
+                                lop = '-'
+                            elif lop == '-':
+                                return(cal(left,lop) + cal(right,lop))   
+                                lop = ''
+                            return(cal(left,lop) - cal(right,lop))
+
+
+        def parse(s,lop=''):
             if s == '':
                 return 'Empty string!'
             l = []
             r = []
             s = s.replace(' ','')
-            
-            for p in range(len(s)):
-                if any(x in s for x in ['(',')']):   
+            while any(x in s for x in ['(',')']):
+                for p in range(len(s)):
                     if s[p] == '(' and len(r) < 1:
                         l.append(p)
                     elif s[p] == ')':
                         if len(l) == 0:
-                            print('left bracket first')
+                            return('left bracket first!')
                         else:
                             r.append(p)
-                            ans = cal(s[l[-1]+1:r[-1]])
+                            ans = cal(s[l[-1]+1:r[-1]],lop)
                             s = "".join((s[:l[-1]],str(ans),s[r[-1]+1:]))
                             l.pop()
                             r.pop()
-            return str(cal(s))
+                            break
+            if '+-' in s:
+                s=s.replace('+-','-')
+            elif '--' in s:
+                s=s.replace('--','+')
+            elif '*-' in s:
+                s="".join(('-',s.replace('*-','*')))
+            elif '/-' in s:
+                s="".join(('-',s.replace('/-','/')))
+            return str(cal(s,lop))
         text = self.view.inputText.get()
         result = self.model.calculate(parse(text))
         self.view.outputContainer.setData(result)
