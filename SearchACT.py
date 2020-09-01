@@ -175,7 +175,7 @@ def cal(s):
     s = s.replace(' ', '')
     if not any(x in s for x in ['+','-','*', '/']):
         return float(s)
-    for i in ['+','-','*', '/']:
+    for i in [x for x in s if x in ['+','-','*', '/']]:
         left, op, right = s.partition(i)
         if op in ['*', '/','+','-']: 
             if op == '*':
