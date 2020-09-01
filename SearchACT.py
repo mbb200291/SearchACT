@@ -122,7 +122,7 @@ def search_by_loop(str_input):
 
 def mul_rule(str_input):
     '''
-    Syntax for and or condition.
+    Syntax for and/or condition.
 
     '''
     
