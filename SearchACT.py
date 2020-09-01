@@ -19,13 +19,15 @@ Version log:
     - caculator loop inside until exit
     - caculator loop inside until exit
     - modify a file name for other OS
-    
+- 1.7.0:
+    - multiple rule syntax
+
 Next version
 - include removing function
 
 """
 
-__version__ = '1.5.2'
+__version__ = '1.7.0'
 
 
 import pickle
@@ -105,11 +107,117 @@ def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
     if temp_collect==set() and temp_collect2==set():
         print(f'\n "{str_input}" not in list. or type "exit" to exit')
 
-def cal(s,lop):
+def search(str_input):
+    '''
+    Return by the matched keys by str_input.
+
+    '''
+    set_match_key = set()
+    for term in DICT_TERM_KEY:
+        if str_input in term:
+            for key in DICT_TERM_KEY[term]:
+                set_match_key.add(key)
+    return set_match_key
+
+def cal_multi_condi_li(li_ele):
+    #print(li_ele)
+    li_ele = [x for x in li_ele if x]
+    if len(li_ele)==1 and type(li_ele[0])==str:
+        return search(li_ele[0])
+    elif len(li_ele)==1 and type(li_ele[0])==set:
+        return li_ele[0]
+    elif len(li_ele)>1 and not [x for x in li_ele if x in ['|', '&']]:
+        print('should not exist')
+        set_ = set()
+        for i in li_ele:
+            set_.update(search(i))
+        return set_
+    else:
+        for i in [x for x in li_ele if x in ['|', '&']]:
+            offset = li_ele.index(i)
+            left, op, right = li_ele[:offset], li_ele[offset:offset+1], li_ele[offset+1:]
+            if op == ['&']:
+                return cal_multi_condi_li(left) & cal_multi_condi_li(right)
+            elif op == ['|']:
+                return cal_multi_condi_li(left) | cal_multi_condi_li(right)
+
+def parse_formula(s):
+    if s == '':
+        return 'Empty string!'
+    l = []
+    r = []
+    s = s.replace(' ','')
+    li_element = []
+    temp = ''
+    for e in s:
+        if e == '(':
+            li_element.append(temp)
+            temp = ''
+            l.append(len(li_element))
+        elif e == ')':
+            li_element.append(temp)
+            temp = ''
+            r.append(len(li_element))
+            li_element[l[-1]:r[-1]+1] = [cal_multi_condi_li(li_element[l[-1]:r[-1]+1])] + ['']*(r[-1]+1 - l[-1] - 1)
+            l.pop()
+            r.pop()
+        elif e in '&|':
+            li_element.append(temp)
+            temp = ''
+            li_element.append(e)
+        else:
+            temp += e
+    li_element.append(temp)    
+    return cal_multi_condi_li(li_element)
+
+""" # ben's modified --> fix some issue
+
+def cal(s):
+    s = s.replace(' ', '')
     if not any(x in s for x in ['+','-','*', '/']):
         return float(s)
-    for i in ['+','-','*', '/']:
+    for i in [x for x in s if x in ['+','-','*', '/']]:
         left, op, right = s.partition(i)
+        if op in ['*', '/','+','-']: 
+            if op == '*':
+                return(cal(left) * cal(right))
+            elif op == '/':
+                return(cal(left) / cal(right))
+            elif op == '+':
+                return(cal(left) + cal(right))
+            elif op == '-':
+                return(cal(left) - cal(right))
+def parse(s):
+    if s == '':
+        return 'Empty string!'
+    l = []
+    r = []
+    s = s.replace(' ','')
+    
+    for p in range(len(s)):
+        if any(x in s for x in ['(', ')']):   
+            if s[p] == '(':
+                l.append(p)
+            elif s[p] == ')':
+                if len(l) == 0:
+                    print('left bracket first')
+                else:
+                    r.append(p)
+                    ans = cal(s[l[-1]+1:r[-1]])
+                    len_bra = r[-1] - l[-1] +1
+                    s = "".join((s[:l[-1]], str(ans)+' '*(len_bra-len(str(ans))), s[r[-1]+1:]))
+                    l.pop()
+                    r.pop()
+        
+    return str(cal(s))
+"""
+def cal(s):
+    s = s.replace(' ', '')
+    if not any(x in s for x in ['+','-','*', '/']):
+        return float(s)
+    for i in [x for x in s if x in ['+','-','*', '/']]:
+        left, op, right = s.partition(i)
+        if op in ['*', '/','+','-']: 
         if op in ['+', '-','*','/']:
             if op == '*':
                 if right == '':
@@ -172,14 +280,15 @@ def main():
     print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
 #    global DICT_KEY_CONTACT, DICT_TERM_KEY,  PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY    
     while True:
-        str_input = input('\nSeach >>> ').lower()
+        str_input = input('\nSeach >>> ')#.lower()
+        '''
         if str_input in DICT_TERM_KEY:
             ## matched
             for k in DICT_TERM_KEY[str_input]:
                 print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[k]))
-
+        '''
         # add search term function
-        elif str_input in ['*addterm', '*add1']:
+        if str_input in ['*addterm', '*add1']:
             print('into adding mode')
             ans = add_searchTerm_to_key()
             if ans == 0:
@@ -242,7 +351,18 @@ def main():
         elif str_input in ['*help', '*h']:
             print('\n# Type "*addterm", "*add1" to add search term linked to someone. \n# Type "*addinfo" or "*add2" to add additional info to someone. \n# Type "exit", "ex" to leave.')
         else:
-            raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT)
+            #raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT)
+            try:
+                #set_matches = search(str_input)
+                set_matches = parse_formula(str_input)
+            except:
+                print('formula error !')
+                pass
+            for r in set_matches:
+                print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
+            if not set_matches:
+                print(f'\n "{str_input}" not in list. or type "exit" to exit')
+
 
 
 if __name__ == '__main__':
