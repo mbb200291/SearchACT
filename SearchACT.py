@@ -133,7 +133,7 @@ def parse(s):
                 l.append(p)
             elif s[p] == ')':
                 if len(l) == 0:
-                    raise 
+                    print('left bracket first')
                 else:
                     r.append(p)
                     ans = cal(s[l[-1]+1:r[-1]])
