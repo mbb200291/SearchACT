@@ -91,6 +91,12 @@ def search(str_input):
                 set_match_key.add(key)
     return set_match_key
 
+def index_from_end(li_, match):
+    for i in range(len(li_)-1, 0, -1):
+        if li_[i] == match:
+            return i
+    return None
+
 def cal_multi_condi_li(li_ele):
     #print(li_ele)
     li_ele = [x for x in li_ele if x]
@@ -106,7 +112,8 @@ def cal_multi_condi_li(li_ele):
         return set_
     else:
         for i in [x for x in li_ele if x in ['|', '&']]:
-            offset = li_ele.index(i)
+            #offset = li_ele.index(i)
+            offset = index_from_end(li_ele, i)
             left, op, right = li_ele[:offset], li_ele[offset:offset+1], li_ele[offset+1:]
             if op == ['&']:
                 return cal_multi_condi_li(left) & cal_multi_condi_li(right)
