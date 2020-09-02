@@ -36,7 +36,7 @@ __version__ = '1.8.0'
 from sys import argv
 from os import path
 import time
-### coustom functions
+### custom functions
 from modules.search import SearchACT
 from modules.calculator import parse
 from modules.contact import Contact
@@ -48,7 +48,6 @@ PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, '_dict_key_contacts.pickle')
 PATH_DICT_TERM_KEY = path.join(PATH_OF_SCRIPT, '_dict_terms_key.pickle')
 
 LI_EXIST_WORDS = ['exit', 'bye', 'ex', 'bye bye', 'quit']
-
 
 # main process
 def main():
