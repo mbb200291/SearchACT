@@ -1,3 +1,5 @@
+import time
+
 def cal(s, lop):
     s = handle(s)
     if not any(x in s for x in ['+', '-', '*', '/']):
