@@ -1,7 +1,7 @@
 # SearchACT
 This is a quick tool to search contacts in ACT genomics.
 
-## Put contact file into directory
+## Copy latest contact file into current directory
 
 ```
 \\tp-fs01\Public\公司通訊錄及座位表
