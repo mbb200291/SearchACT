@@ -328,10 +328,12 @@ def main():
             except:
                 print('formula error !')
                 pass
-            for r in set_matches:
-                print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
             if not set_matches:
                 print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
+            else:
+                for r in set_matches:
+                    print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
+            
 
 
 
