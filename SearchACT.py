@@ -31,20 +31,12 @@ Next version
 __version__ = '1.7.0'
 
 
-import pickle
 from sys import argv
 from os import path
 import time
-
-def save_obj_to_pickle(path, obj): # will end with pickle
-    print('# saving file to:', '%s.pickle'%path)
-    with open('%s.pickle'%path, 'wb') as f_pkl:
-        pickle.dump(obj, f_pkl)
-
-def read_pickle(path_):
-    with open(path_, 'rb') as file:
-        return pickle.load(file)
-
+### coustom functions
+from modules.tools import save_obj_to_pickle, read_pickle
+###
 
 PATH_OF_SCRIPT = path.dirname(argv[0])
 PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, '_dict_key_contacts.pickle')
@@ -87,28 +79,6 @@ def add_contactInfo():
     print(f'Successfuly add new info terms. "{DICT_KEY_CONTACT[str_input_KEY]}"')
     return 0
     
-def raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT):
-    ## partial matches
-    temp_collect = set()
-    for i in DICT_TERM_KEY.keys():
-        if i.startswith(str_input):
-            for k in DICT_TERM_KEY[i]:
-                temp_collect.add(k)
-    for r in temp_collect:
-        print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
-
-    ## within name matches
-    print('\n---------------------')
-    temp_collect2 = set()
-    for i in DICT_TERM_KEY.keys():
-        if str_input in i:
-            for k in DICT_TERM_KEY[i]:
-                temp_collect2.add(k)
-    for r in temp_collect2:
-        print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
-    if temp_collect==set() and temp_collect2==set():
-        print(f'\n "{str_input}" not in list. or type "exit" to exit')
-
 def search(str_input):
     '''
     Return by the matched keys by str_input.
@@ -390,10 +360,12 @@ def main():
             except:
                 print('formula error !')
                 pass
-            for r in set_matches:
-                print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
             if not set_matches:
-                print(f'\n "{str_input}" not in list. or type "exit" to exit')
+                print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
+            else:
+                for r in set_matches:
+                    print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[r]))
+            
 
 
 
