@@ -1,10 +1,9 @@
 # SearchACT
 This is a quick tool to search contacts in ACT genomics.
 
-## Copy latest contact file into current directory
-
+## Manually copy lastest contact file into directory
 ```
-\\tp-fs01\Public\公司通訊錄及座位表
+\\tp-fs01\Public\公司通訊錄及座位表\***行動基因通訊錄含部門.xlsx
 ```
 
 ## quick use
@@ -20,7 +19,7 @@ python SearchACT.py # enter the interactive window
 >林邦齊        Ben Lin 人工智慧部      ******@*******.***  1624    ****-***-***
 
 >>> (AI & ben) | bruce  # multiple condtion can using bracket to seperate
- 
+
 >林邦齊        Ben Lin 人工智慧部      ******@*******.***  1624    ****-***-***
 
 >陳柏劭        Bruce Chen      次世代定序部    ******@*******.***  1520    ****-***-***
@@ -49,4 +48,3 @@ pyinstaller -F SearchACT-GUI.py
 ```
 pip install -r requirements.txt
 ```
-
