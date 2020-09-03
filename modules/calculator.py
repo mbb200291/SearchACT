@@ -1,5 +1,3 @@
-import time
-
 def cal(s, lop):
     s = handle(s)
     if not any(x in s for x in ['+', '-', '*', '/']):
@@ -73,5 +71,3 @@ def handle(s):
                     s = f'-{s[i:p]}/{s[p+2:]}'
     return s
 
-if __name__ == '__main__':
-    print(parse('+5+6*((25-9/2)-3*5/85/-12-22*5)-53/-2+(-2/(2+5-3*5*-5))'))
