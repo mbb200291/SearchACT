@@ -1,7 +1,19 @@
+OPSPECIAL = {
+    ' ':'',
+    '^-':'np',
+    '**-':'np',
+    '^':'pp',
+    '**':'pp',
+    }
+
 def cal(s, lop):
     s = handle(s)
     if not any(x in s for x in ['+', '-', '*', '/']):
-        return float(s)
+        # print(s)
+        if any(x in s for x in ['pp', 'np']):
+            return specialop(s)
+        else:
+            return float(s)
     for i in ['+', '-', '*', '/']:
         left, op, right = s.partition(i)
         # print(i, [left, op, right])
@@ -28,8 +40,13 @@ def cal(s, lop):
 def parse(s):
     if s == '':
         return 'Empty string!'
+    if s.count('(') != s.count(')'):
+        return 'Formula error!'
     q = -1
-    s = s.replace(' ','')
+
+    for i in OPSPECIAL.keys():
+        s = s.replace(i,OPSPECIAL[i])
+
     while any(x in s for x in ['(',')']):
         for p in range(len(s)):
             if s[p] == '(':
@@ -70,4 +87,32 @@ def handle(s):
                 elif i == 0:
                     s = f'-{s[i:p]}/{s[p+2:]}'
     return s
+def specialop(s):
+    q = ''
+    while any(x in s for x in ['pp','np']):
+        for p in range(len(s),-1,-1):
+            if s[p-2:p] in ['np','pp'] and q == '':     
+                if s.count('pp') + s.count('np') == 1:
+                    n = s.find('pp') if s.find('pp') > 0 else s.find('np')
+                    # print(s,n)
+                    if s[n:n+2] == 'pp':
+                        s = f'{float(s[:n])**float(s[n+2:])}'
+                    elif s[n:n+2] == 'np':    
+                        s = f'{float(s[:n])**-float(s[n+2:])}'
+                    break
+                else:    
+                    q = s[p-2:p]
+            elif s[p-2:p] in ['np','pp']:
+                n = s.find(q, p)
+                if s[n:n+2] == 'pp':
+                    ans = float(s[p:n])**float(s[n+2:])
+                elif s[n:n+2] == 'np':    
+                    ans = float(s[p:n])**-float(s[n+2:])
+                s=f'{s[0:p]+str(ans)}'
+                # print(p,n,s)
+                q=''
+                break
+    return(float(s))       
 
+if __name__ == '__main__':
+    print(parse('2**2**-2*(-2/-2-3+5+5+(6**2))+6)'))
