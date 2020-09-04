@@ -1,10 +1,6 @@
 # SearchACT
 This is a quick tool to search contacts in ACT genomics.
 
-## Manually copy lastest contact file into directory
-```
-\\tp-fs01\Public\公司通訊錄及座位表\***行動基因通訊錄含部門.xlsx
-```
 
 ## quick use
 ```
@@ -31,20 +27,34 @@ Calculator >>> exit
 
 >>> ex  # type "ex" to leave
 ```
-
-## update dictionary
+## install procedure
+### install requirements by pip
+```
+pip install -r requirements.txt
+```
+### copy latest contact file to directory of *SearchACT*
+```
+\\tp-fs01\Public\公司通訊錄及座位表
+```
+### update dictionary
 ```
 python UpdataContact.py
 ```
-
-## compile as .exe on windows (recommend)
+### run
+```
+python SearchACT.py
+```
+### or using GUI version
+```
+python SearchACT-GUI.py
+```
+### compile as .exe on windows (recommend)
 ```
 pyinstaller -F SearchACT.py -i icon.ico
+pyinstaller -F SearchACT-GUI.py -i icon.ico
 pyinstaller -F UpdataContact.py
-pyinstaller -F SearchACT-GUI.py
 ```
-
-## install requirements by pip
+## ready-to-use .exe file can obtatin from tp-fs01\PUBLIC folder. Directly copy whole folder to your local
 ```
-pip install -r requirements.txt
+\\tp-fs01\Public\SearchACT
 ```
