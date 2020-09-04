@@ -8,9 +8,14 @@ OPSPECIAL = {
 
 def cal(s, lop):
     s = handle(s)
+    if 'pp-' in s:
+        s = s.replace('pp-','np')
+    elif 'np-' in s:
+        s = s.replace('np-','pp')
     if not any(x in s for x in ['+', '-', '*', '/']):
         # print(s)
         if any(x in s for x in ['pp', 'np']):
+            print(s)
             return specialop(s)
         else:
             return float(s)
@@ -62,6 +67,7 @@ def parse(s):
                     s = f'{s[:q]}{ans}{s[p+1:]}'
                     q = -1
                     break
+    print(s)
     return str(cal(s, ''))
 
 def handle(s):  
@@ -115,4 +121,4 @@ def specialop(s):
     return(float(s))       
 
 if __name__ == '__main__':
-    print(parse('2**2**-2*(-2/-2-3+5+5+(6**2))+6)'))
+    print(parse('2*2**-2*(-2/-2-3+5+5+(6**2)+6**(2-3)-5*6/-2)'))
