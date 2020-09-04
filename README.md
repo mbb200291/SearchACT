@@ -50,3 +50,7 @@ pyinstaller -F SearchACT-GUI.py
 pip install -r requirements.txt
 ```
 
+## ready-to-use .exe file can obtatin from tp-fs01\PUBLIC folder. Directly copy whole folder to your local.
+```
+\\tp-fs01\Public\SearchACT
+```
