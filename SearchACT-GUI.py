@@ -3,40 +3,32 @@ import os
 import pickle
 import tkinter
 import modules.calculator
+import modules.contact
+import modules.search
 
 runOS = platform.system()
-
 rootPath = os.path.dirname(os.path.abspath(__file__))
 dataPath = os.path.join(rootPath, '_dict_key_contacts.pickle')
-with open(dataPath, 'rb') as file:
-    data = pickle.load(file)
 dmapPath = os.path.join(rootPath, '_dict_terms_key.pickle')
-with open(dmapPath, 'rb') as file:
-    dmap = pickle.load(file)
 
 class SearchACTModel:
-    def __init__(self, data, dmap, calculator):
-        self.data = data
-        self.dmap = dmap
+    def __init__(self, contact, searcher, calculator):
+        self.contact = contact
+        self.searcher = searcher
         self.calculator = calculator
 
     def search(self, text):
-        ndata = []
-        if text in self.dmap:
-            for key in self.dmap[text]:
-                ndata.append(data[key])
-        else:
-            dataMatch = set()
-            for kwarg in self.dmap:
-                if text in kwarg:
-                    for key in self.dmap[kwarg]:
-                        dataMatch.add(key)
-            for key in dataMatch:
-                ndata.append(self.data[key])
-        if (len(ndata) == 0):
-            return [[f'"{text}" not in list.']]
-        else:
-            return ndata
+        try:
+            matchIDs = self.searcher.parse_formula(text)
+            if len(matchIDs) == 0:
+                return [[f'\'{str_input}\' not found.']]
+            else:
+                data = []
+                for matchID in matchIDs:
+                    data.append(self.contact.DICT_KEY_CONTACT[matchID])
+                return data
+        except:
+            return [['Formula error!']]
 
     def calculate(self, text):
         try:
@@ -111,10 +103,12 @@ class SearchACTView(tkinter.Tk):
 
 class SearchACTController:
     def __init__(self):
+        cont = modules.contact.Contact(dataPath, dmapPath)
+        search = modules.search.SearchACT(cont.DICT_TERM_KEY)
         names = modules.calculator.names
         ops = modules.calculator.ops
         cal = modules.calculator.Calculator(names, ops)
-        self.model = SearchACTModel(data, dmap, cal)
+        self.model = SearchACTModel(cont, search, cal)
         self.view = SearchACTView()
         self.view.searchButton['command'] = self.search
         self.view.calculateButton['command'] = self.calculate
