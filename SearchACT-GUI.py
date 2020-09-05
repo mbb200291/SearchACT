@@ -157,7 +157,8 @@ class SearchACTController:
         else:
             self.dataPath = ''
             self.dmapPath = ''
-        self.loadContact()
+        [contact, search] = self.loadContact()
+        self.model.updateContact(contact, search)
 
     def loadContact(self):
         if all([os.path.isfile(self.dataPath), os.path.isfile(self.dmapPath)]):
