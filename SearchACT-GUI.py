@@ -1,15 +1,13 @@
-import platform
 import os
-import pickle
 import tkinter
+import tkinter.filedialog
 import modules.calculator
 import modules.contact
 import modules.search
+import modules.help_info
+import SearchACT
 
-runOS = platform.system()
-rootPath = os.path.dirname(os.path.abspath(__file__))
-dataPath = os.path.join(rootPath, '_dict_key_contacts.pickle')
-dmapPath = os.path.join(rootPath, '_dict_terms_key.pickle')
+__version__ = '1.0.0'
 
 class SearchACTModel:
     def __init__(self, contact, searcher, calculator):
@@ -27,7 +25,7 @@ class SearchACTModel:
                 for matchID in matchIDs:
                     data.append(self.contact.DICT_KEY_CONTACT[matchID])
                 return data
-        except:
+        except e:
             return [['Formula error!']]
 
     def calculate(self, text):
@@ -36,6 +34,10 @@ class SearchACTModel:
             return [[str(result)]]
         except:
             return [['Formula error!']]
+
+    def updateContact(self, contact, searcher):
+        self.contact = contact
+        self.searcher = searcher
 
 class ScrollTable(tkinter.Frame):
     def __init__(self, *args, **kwargs):
@@ -81,11 +83,23 @@ class ScrollTable(tkinter.Frame):
         self.data = data
         self.update()
 
+class MessageWindow(tkinter.Toplevel):
+    def __init__(self, text, title, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title(title)
+        self.attributes('-topmost', 'true')
+        self.messageBox = tkinter.Message(self, text=text, width=400)
+        self.messageBox.pack(fill='both')
+
 class SearchACTView(tkinter.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title('SearchACT')
         self.geometry('800x600')
+        self.mainMenu = tkinter.Menu(self)
+        self.config(menu=self.mainMenu)
+        self.fileMenu = tkinter.Menu(self.mainMenu, tearoff=0)
+        self.mainMenu.add_cascade(label='File', menu=self.fileMenu)
         self.container = tkinter.Frame(self)
         self.container.pack(fill='both', padx=5, pady=5, expand=True)
         self.inputContainer = tkinter.Frame(self.container)
@@ -101,18 +115,63 @@ class SearchACTView(tkinter.Tk):
         self.outputContainer = ScrollTable(self.container)
         self.outputContainer.pack(fill='both', expand=True)
 
+    def openMsgWindow(self, text, title, *args, **kwargs):
+        return MessageWindow(text, title, *args, **kwargs)
+
 class SearchACTController:
     def __init__(self):
-        cont = modules.contact.Contact(dataPath, dmapPath)
-        search = modules.search.SearchACT(cont.DICT_TERM_KEY)
-        names = modules.calculator.names
-        ops = modules.calculator.ops
-        cal = modules.calculator.Calculator(names, ops)
-        self.model = SearchACTModel(cont, search, cal)
+        self.rootPath = os.path.dirname(os.path.abspath(__file__))
+        self.dataPath = os.path.join(self.rootPath, '_dict_key_contacts.pickle')
+        self.dmapPath = os.path.join(self.rootPath, '_dict_terms_key.pickle')
         self.view = SearchACTView()
+        [contact, search] = self.loadContact()
+        cal = self.loadCalculator()
+        self.model = SearchACTModel(contact, search, cal)
         self.view.searchButton['command'] = self.search
         self.view.calculateButton['command'] = self.calculate
+        self.view.mainMenu.add_command(label='Info', command=self.info)
+        self.view.fileMenu.add_command(label='Load', command=self.setContactFiles)
+        self.view.inputText.focus_set()
         self.view.mainloop()
+
+    def info(self):
+        mver = SearchACT.__version__
+        gver = __version__
+        text = f'Main version {mver}\nGUI version {gver}'
+        self.view.openMsgWindow(text, 'Info')
+
+    def setContactFiles(self):
+        dataPath = tkinter.filedialog.askopenfilename(
+            title='Select a key contact file',
+            initialdir=self.rootPath,
+            filetypes=[('Pickle files', '.pickle')]
+        )
+        dmapPath = tkinter.filedialog.askopenfilename(
+            title='Select a terms key file',
+            initialdir=self.rootPath,
+            filetypes=[('Pickle files', '.pickle')]
+        )
+        if all([type(dataPath) == str, type(dmapPath) == str]):
+            self.dataPath = dataPath
+            self.dmapPath = dmapPath
+        else:
+            self.dataPath = ''
+            self.dmapPath = ''
+        self.loadContact()
+
+    def loadContact(self):
+        if all([os.path.isfile(self.dataPath), os.path.isfile(self.dmapPath)]):
+            contact = modules.contact.Contact(self.dataPath, self.dmapPath)
+            search = modules.search.SearchACT(contact.DICT_TERM_KEY)
+            return [contact, search]
+        else:
+            self.view.openMsgWindow('No contact files', 'Error')
+            return [None, None]
+
+    def loadCalculator(self):
+        names = modules.calculator.names
+        ops = modules.calculator.ops
+        return modules.calculator.Calculator(names, ops)
 
     def search(self):
         text = self.view.inputText.get().lower()
