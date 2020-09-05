@@ -19,13 +19,13 @@ class SearchACTModel:
         try:
             matchIDs = self.searcher.parse_formula(text)
             if len(matchIDs) == 0:
-                return [[f'\'{str_input}\' not found.']]
+                return [[f'\'{text}\' not found.']]
             else:
                 data = []
                 for matchID in matchIDs:
                     data.append(self.contact.DICT_KEY_CONTACT[matchID])
                 return data
-        except e:
+        except:
             return [['Formula error!']]
 
     def calculate(self, text):
@@ -174,7 +174,7 @@ class SearchACTController:
         return modules.calculator.Calculator(names, ops)
 
     def search(self):
-        text = self.view.inputText.get().lower()
+        text = self.view.inputText.get()
         result = self.model.search(text)
         self.view.outputContainer.setData(result)
 
