@@ -90,6 +90,10 @@ class MessageWindow(tkinter.Toplevel):
         self.attributes('-topmost', 'true')
         self.messageBox = tkinter.Message(self, text=text, width=400)
         self.messageBox.pack(fill='both')
+        self.bind('<Escape>', self.close)
+
+    def close(self, *args, **kwargs):
+        self.destroy()
 
 class SearchACTView(tkinter.Tk):
     def __init__(self, *args, **kwargs):
@@ -132,15 +136,29 @@ class SearchACTController:
         self.view.mainMenu.add_command(label='Info', command=self.info)
         self.view.fileMenu.add_command(label='Load', command=self.setContactFiles)
         self.view.inputText.focus_set()
+        self.view.inputText.bind('<Return>', self.search)
+        self.view.inputText.bind('<KP_Enter>', self.search)
+        self.view.inputText.bind('<Control-Key-Return>', self.calculate)
+        self.view.inputText.bind('<Control-Key-KP_Enter>', self.calculate)
+        self.view.inputText.bind('<Control-KeyRelease-a>', self.selectAll)
+        self.view.inputText.bind('<Control-KeyRelease-A>', self.selectAll)
+        self.view.bind('<Control-Key-l>', self.setContactFiles)
+        self.view.bind('<Control-Key-L>', self.setContactFiles)
+        self.view.bind('<Control-Key-i>', self.info)
+        self.view.bind('<Control-Key-I>', self.info)
+        self.view.bind('<Double-Escape>', self.close)
         self.view.mainloop()
 
-    def info(self):
+    def close(self, *args, **kwargs):
+        self.view.destroy()
+
+    def info(self, *args, **kwargs):
         mver = SearchACT.__version__
         gver = __version__
         text = f'Main version {mver}\nGUI version {gver}'
         self.view.openMsgWindow(text, 'Info')
 
-    def setContactFiles(self):
+    def setContactFiles(self, *args, **kwargs):
         dataPath = tkinter.filedialog.askopenfilename(
             title='Select a key contact file',
             initialdir=self.rootPath,
@@ -154,13 +172,10 @@ class SearchACTController:
         if all([type(dataPath) == str, type(dmapPath) == str]):
             self.dataPath = dataPath
             self.dmapPath = dmapPath
-        else:
-            self.dataPath = ''
-            self.dmapPath = ''
-        [contact, search] = self.loadContact()
-        self.model.updateContact(contact, search)
+            [contact, search] = self.loadContact()
+            self.model.updateContact(contact, search)
 
-    def loadContact(self):
+    def loadContact(self, *args, **kwargs):
         if all([os.path.isfile(self.dataPath), os.path.isfile(self.dmapPath)]):
             contact = modules.contact.Contact(self.dataPath, self.dmapPath)
             search = modules.search.SearchACT(contact.DICT_TERM_KEY)
@@ -169,17 +184,21 @@ class SearchACTController:
             self.view.openMsgWindow('No contact files', 'Error')
             return [None, None]
 
-    def loadCalculator(self):
+    def loadCalculator(self, *args, **kwargs):
         names = modules.calculator.names
         ops = modules.calculator.ops
         return modules.calculator.Calculator(names, ops)
 
-    def search(self):
+    def selectAll(self, *args, **kwargs):
+        self.view.inputText.select_range(0, tkinter.END)
+        self.view.inputText.icursor(tkinter.END)
+
+    def search(self, *args, **kwargs):
         text = self.view.inputText.get()
         result = self.model.search(text)
         self.view.outputContainer.setData(result)
 
-    def calculate(self):
+    def calculate(self, *args, **kwargs):
         text = self.view.inputText.get()
         result = self.model.calculate(text)
         self.view.outputContainer.setData(result)
