@@ -1,30 +1,10 @@
-
-OPSPECIAL = {
-    ' ':'',
-    '^-':'np',
-    '**-':'np',
-    '^':'pp',
-    '**':'pp',
-    }
-
 def cal(s, lop):
     s = handle(s)
-#     print('handle: '+s)
-    if 'pp-' in s:
-        s = s.replace('pp-','np')
-    elif 'np-' in s:
-        s = s.replace('np-','pp')      
-
     if not any(x in s for x in ['+', '-', '*', '/']):
-        # print(s)
-        if any(x in s for x in ['pp', 'np']):
-            return specialop(s)
-        else:
-            return float(s)
-    
+        return float(s)
     for i in ['+', '-', '*', '/']:
         left, op, right = s.partition(i)
-#         print(i, [left, op, right])
+        # print(i, [left, op, right])
         if op in ['+', '-', '*', '/']:
             if op == '*':
                 return cal(left,lop) * cal(right,lop)
@@ -48,12 +28,8 @@ def cal(s, lop):
 def parse(s):
     if s == '':
         return 'Empty string!'
-    if s.count('(') != s.count(')'):
-        return 'Formula error!'
-    q = -1 
-    for i in OPSPECIAL.keys():
-        s = s.replace(i,OPSPECIAL[i])
-    
+    q = -1
+    s = s.replace(' ','')
     while any(x in s for x in ['(',')']):
         for p in range(len(s)):
             if s[p] == '(':
@@ -66,14 +42,9 @@ def parse(s):
                         return 'Formula error!'
                     else:
                         ans = cal(s[q+1:p], '')
-#                         print(f'ans:{ans}')
-                        negative_in_brackets = 'nbk' if float(ans) < 0 and s[p+1:].startswith(('np','pp')) else ''
-#                         print(negative_in_brackets)
-                    s = f'{s[:q]}{negative_in_brackets + str(ans)[1:]}{s[p+1:]}' if negative_in_brackets == 'nbk' else f'{s[:q]}{ans}{s[p+1:]}'
-#                     print(s)
+                    s = f'{s[:q]}{ans}{s[p+1:]}'
                     q = -1
                     break
-#     print(f's:{s}')
     return str(cal(s, ''))
 
 def handle(s):  
@@ -100,32 +71,3 @@ def handle(s):
                     s = f'-{s[i:p]}/{s[p+2:]}'
     return s
 
-def specialop(s):
-    q = ''
-    while any(x in s for x in ['pp','np']):
-        for p in range(len(s),-1,-1):
-            if s[p-2:p] in ['np','pp'] and q == '':     
-                if s.count('pp') + s.count('np') == 1:
-                    n = s.find('pp') if s.find('pp') > 0 else s.find('np')
-#                     print(f'{s},{n}')
-                    if s[n:n+2] == 'pp':
-                        s = f'{(-float(s[3:n]))**float(s[n+2:])}' if s[:n].startswith('nbk') else f'{float(s[:n])**float(s[n+2:])}'
-                    elif s[n:n+2] == 'np':    
-                        s = f'{(-float(s[3:n]))**-float(s[n+2:])}' if s[:n].startswith('nbk') else f'{float(s[:n])**-float(s[n+2:])}'
-                    break
-                else:    
-                    q = s[p-2:p]
-            elif s[p-2:p] in ['np','pp']:
-                n = s.find(q, p)
-                if s[n:n+2] == 'pp':
-                    ans = float(s[p:n])**float(s[n+2:])
-                elif s[n:n+2] == 'np':    
-                    ans = float(s[p:n])**-float(s[n+2:])
-                s=f'{s[0:p]+str(ans)}'
-                # print(p,n,s)
-                q=''
-                break
-    return float(s) if 'j' not in s else complex(s)   
-     
-if __name__ == '__main__':
-    print(parse('(2**3+25-8/-2-5/-2/-2+(-2-5)**(3))**(2/3)'))
