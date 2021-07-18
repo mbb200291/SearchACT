@@ -1,20 +1,13 @@
-"""
-To manage dictionary update operations.
+'''
+To create index data for SearchAct main program use.
 
-"""
+'''
+
+#import pandas as pd
 from sys import argv
 from os import path, listdir
 import pickle
 from openpyxl import load_workbook
-
-def save_obj_to_pickle(path, obj): # will end with pickle
-    print('# saving file to:', '%s.pickle'%path)
-    with open('%s.pickle'%path, 'wb') as f_pkl:
-        pickle.dump(obj, f_pkl)
-
-def read_pickle(path_):
-    with open(path_, 'rb') as file:
-        return pickle.load(file)
 
 class ContactParser:
     def __init__(self, path_file):
@@ -86,17 +79,14 @@ def read_pickle(path_):
     with open(path_, 'rb') as file:
         return pickle.load(file)
 
-def locate_latest_contact_file(cwd=None, basename=False):
-        name_contact = sorted([x for x in listdir(cwd) if ".xlsx" in x and not x.startswith('~$')], key=path.getmtime)[-1]
-        print('# Read file:', name_contact)
-        if not basename:
-            if not cwd:
-                cwd = path.dirname(path.abspath(__file__))+'..'
-            #print(cwd)
-            return path.join(cwd, name_contact)
-        else:
-            return name_contact
-
+def locate_contact_file(cwd=None):
+    if not cwd:
+        cwd = path.dirname(path.abspath(__file__))
+    print(cwd)
+    path_contact = sorted([x for x in listdir(cwd) if ".xlsx" in x and not x.startswith('~$')], key=path.getmtime)[-1]
+    #print([x for x in os.listdir(cwd) if ".xlsx" in x])
+    print('# Read file:', path_contact )
+    return path.join(cwd, path_contact)
 
 def remove_blank(tab):
     #First, find NaN entries in first column
@@ -128,9 +118,8 @@ def make_dict(path_contact):#, _nrows):
     excel_file_name = path.basename(path_contact)
 
     ## Make dictionary
-    # dict_to_phone = {} #
-    # dict_phone_Info = {'*version':excel_file_name, '*ver':excel_file_name}
-    dict_mapping_data = {'*version':excel_file_name, '*ver':excel_file_name}
+    dict_to_phone = {} #
+    dict_phone_Info = {'*version':excel_file_name, '*ver':excel_file_name}
     
     DI_Apartment_Abbrev = {
         "執行長室": "CEO", 
@@ -179,99 +168,54 @@ def make_dict(path_contact):#, _nrows):
         
         print(chinese_name, english_name)
         
-        key_ = hash(email.split('@')[0]) # convert to int by hashing
+        key_ = email.split('@')[0]
         ## first part: key_ to result
-        dict_mapping_data[key_] = [str(x) for x in [chinese_name, english_name, department, email, phone, cellphone]]
+        dict_phone_Info[key_] = [str(x) for x in [chinese_name, english_name, department, email, phone, cellphone]]
 
         ## second part: query items to key
-        dict_mapping_data.setdefault(chinese_name, set()).add(key_)
-        #dict_mapping_data.setdefault(chinese_name[:-1], set()).add(key_)
-        #dict_mapping_data.setdefault(chinese_name[-1], set()).add(key_)
-        dict_mapping_data.setdefault(chinese_name[0], set()).add(key_)
-        dict_mapping_data.setdefault(english_name, set()).add(key_)
-        dict_mapping_data.setdefault(english_name.lower(), set()).add(key_) # lower
-        dict_mapping_data.setdefault(english_name_var2, set()).add(key_)
-        dict_mapping_data.setdefault(english_name_var2.lower(), set()).add(key_)  # lower
-        dict_mapping_data.setdefault(english_name_var3, set()).add(key_)
-        dict_mapping_data.setdefault(english_name_var3.lower(), set()).add(key_)  # lower
-        dict_mapping_data.setdefault(''.join([x[0].upper() for x in english_name.split()]), set()).add(key_)     # abbrev eng name (eg, Shu-Jen Chen => SJC)
-        dict_mapping_data.setdefault(''.join([x[0].upper() for x in english_name_var2.split()]), set()).add(key_) # abbrev eng name
-        dict_mapping_data.setdefault(''.join([x[0].upper() for x in english_name_var3.split()]), set()).add(key_) # abbrev eng name
+        dict_to_phone.setdefault(chinese_name, set()).add(key_)
+        #dict_to_phone.setdefault(chinese_name[:-1], set()).add(key_)
+        #dict_to_phone.setdefault(chinese_name[-1], set()).add(key_)
+        dict_to_phone.setdefault(chinese_name[0], set()).add(key_)
+        dict_to_phone.setdefault(english_name, set()).add(key_)
+        dict_to_phone.setdefault(english_name.lower(), set()).add(key_) # lower
+        dict_to_phone.setdefault(english_name_var2, set()).add(key_)
+        dict_to_phone.setdefault(english_name_var2.lower(), set()).add(key_)  # lower
+        dict_to_phone.setdefault(english_name_var3, set()).add(key_)
+        dict_to_phone.setdefault(english_name_var3.lower(), set()).add(key_)  # lower
+        dict_to_phone.setdefault(''.join([x[0].upper() for x in english_name.split()]), set()).add(key_)     # abbrev eng name (eg, Shu-Jen Chen => SJC)
+        dict_to_phone.setdefault(''.join([x[0].upper() for x in english_name_var2.split()]), set()).add(key_) # abbrev eng name
+        dict_to_phone.setdefault(''.join([x[0].upper() for x in english_name_var3.split()]), set()).add(key_) # abbrev eng name
 
-        dict_mapping_data.setdefault(english_name.split()[-1][0].upper()+''.join([x[0].upper() for x in english_name.split()[:-1]]), set()).add(key_)      # abbrev eng name (eg, Shu Jen Chen => CSJ)
-        dict_mapping_data.setdefault(english_name.split()[-1][0].upper()+''.join([x[0].upper() for x in english_name_var2.split()[:-1]]), set()).add(key_) # abbrev eng name
-        dict_mapping_data.setdefault(english_name.split()[-1][0].upper()+''.join([x[0].upper() for x in english_name_var3.split()[:-1]]), set()).add(key_) # abbrev eng name 
+        dict_to_phone.setdefault(english_name.split()[-1][0].upper()+''.join([x[0].upper() for x in english_name.split()[:-1]]), set()).add(key_)      # abbrev eng name (eg, Shu Jen Chen => CSJ)
+        dict_to_phone.setdefault(english_name.split()[-1][0].upper()+''.join([x[0].upper() for x in english_name_var2.split()[:-1]]), set()).add(key_) # abbrev eng name
+        dict_to_phone.setdefault(english_name.split()[-1][0].upper()+''.join([x[0].upper() for x in english_name_var3.split()[:-1]]), set()).add(key_) # abbrev eng name 
 
         # email user id
-        dict_mapping_data.setdefault(email.split('@')[0].lower(), set()).add(key_)
+        dict_to_phone.setdefault(email.split('@')[0].lower(), set()).add(key_)
         # by Phone num
-        dict_mapping_data.setdefault(str(phone), set()).add(key_)
+        dict_to_phone.setdefault(str(phone), set()).add(key_)
         # by cell phone num
-        dict_mapping_data.setdefault(str(cellphone), set()).add(key_)
+        dict_to_phone.setdefault(str(cellphone), set()).add(key_)
         # by department
-        dict_mapping_data.setdefault(str(department), set()).add(key_)
+        dict_to_phone.setdefault(str(department), set()).add(key_)
         ## by department's abbreviation
-        dict_mapping_data.setdefault(DI_Apartment_Abbrev.get(str(department), str(department)), set()).add(key_)
+        dict_to_phone.setdefault(DI_Apartment_Abbrev.get(str(department), str(department)), set()).add(key_)
 
 
     #print(os.path.split(sys.path[0])[0])
-    # path_term_key = path.join(path.dirname(path_contact), '_dict_terms_key')
-    # path_key_contact = path.join(path.dirname(path_contact), '_dict_key_contacts')
-    path_data = path.join(path.dirname(path_contact), '_dict_data')
+    path_term_key = path.join(path.dirname(path_contact), '_dict_terms_key')
+    path_key_contact = path.join(path.dirname(path_contact), '_dict_key_contacts')
+    # path_data = path.join(path.dirname(path_contact), '_dict_data')
 
-    # save_obj_to_pickle(path_term_key, dict_to_phone)
-    # save_obj_to_pickle(path_key_contact, dict_phone_Info)
     #save_obj_to_pickle(path_data, [dict_to_phone, dict_phone_Info])
-    save_obj_to_pickle(path_data, dict_mapping_data)
+    save_obj_to_pickle(path_term_key, dict_to_phone)
+    save_obj_to_pickle(path_key_contact, dict_phone_Info)
 
-
-class Contact():
-    #def __init__(self, PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY):
-    def __init__(self, PATH_DICH_MAPPING_DATA):
-        # self.PATH_DICT_KEY_CONTACT = PATH_DICT_KEY_CONTACT
-        # self.PATH_DICT_TERM_KEY = PATH_DICT_TERM_KEY
-        self.PATH_DICH_MAPPING_DATA = PATH_DICH_MAPPING_DATA
-        # self.DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
-        # self.DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
-        self.DICH_MAPPING_DATA = read_pickle(PATH_DICH_MAPPING_DATA)
-
-    def add_searchTerm_to_key(self, str_input_Term, str_input_KEY):
-        #self.DICT_TERM_KEY.setdefault(str_input_Term, set()).add(str_input_KEY)
-        self.DICH_MAPPING_DATA.setdefault(str_input_Term, set()).add(str_input_KEY)
-        save_obj_to_pickle(path.splitext(self.PATH_DICH_MAPPING_DATA)[0], self.DICT_TERM_KEY)
-        print(f'Successfuly add new search terms. "{str_input_Term}":"{str_input_KEY}"')
-        return 0
-
-    def add_contactInfo(self, str_input_KEY, str_add_info):
-        self.DICT_KEY_CONTACT[str_input_KEY].append(str_add_info)
-        save_obj_to_pickle(path.splitext(self.PATH_DICT_KEY_CONTACT)[0], self.DICT_KEY_CONTACT)
-        print(f'Successfuly add new info terms. "{self.DICT_KEY_CONTACT[str_input_KEY]}"')
-        return 0
-    
-    def re_build(self):
-        make_dict(locate_latest_contact_file())
-        '''
-        import updata_contact
-        print('** this operation will wipe out the term created by your own. Sure?')
-        str_input = input('\n(Y/N) >>> ').lower()
-        if str_input == 'y':
-            updata_contact.MakeDict(updata_contact.locate_contact_file())
-            DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
-            DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
-        else:
-            pass
-        '''
-
-    def rm_ifno(self):
-        pass
-
-    def check_version(self):
-        if self.DICT_KEY_CONTACT.get('*version') != locate_latest_contact_file(basename=True):
-            self.re_build()
 
 def main():
     print('# Loading')
-    make_dict(locate_latest_contact_file())
+    make_dict(locate_contact_file())# int(sys.argv[2]))
     print('# ================================== Finish ================================== ')
 
 

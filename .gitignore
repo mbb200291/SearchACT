@@ -8,6 +8,7 @@ SearchACT.spec
 __pycache__/
 build/
 dist/
+examples/
 
 # personal data
 *.xlsx

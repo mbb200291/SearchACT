@@ -69,7 +69,7 @@ pyinstaller -F SearchACT-GUI.py -i icon.ico
 pyinstaller -F UpdataContact.py
 ```
 
-## ready-to-use .exe file can obtatin from tp-fs01\PUBLIC folder. Directly copy whole folder to your local
+## ready-to-use .exe file can obtatin from tp-fs01\PUBLIC folder. Directly copy whole folder or just creating symbolic link to your local.
 
 ```
 \\tp-fs01\Public\SearchACT
