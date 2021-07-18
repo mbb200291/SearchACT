@@ -7,7 +7,7 @@ import modules.search
 import modules.help_info
 import SearchACT
 
-__version__ = '1.0.0'
+__version__ = '2.0.0'
 
 class SearchACTModel:
     def __init__(self, contact, searcher, calculator):
@@ -23,7 +23,7 @@ class SearchACTModel:
             else:
                 data = []
                 for matchID in matchIDs:
-                    data.append(self.contact.DICT_KEY_CONTACT[matchID])
+                    data.append(self.contact.DICH_MAPPING_DATA[matchID])
                 return data
         except:
             return [['Formula error!']]
@@ -128,8 +128,7 @@ class SearchACTView(tkinter.Tk):
 class SearchACTController:
     def __init__(self):
         self.rootPath = os.path.dirname(os.path.abspath(__file__))
-        self.dataPath = os.path.join(self.rootPath, '_dict_key_contacts.pickle')
-        self.dmapPath = os.path.join(self.rootPath, '_dict_terms_key.pickle')
+        self.dataPath = os.path.join(self.rootPath, '_dict_data.pkl')
         self.view = SearchACTView()
         [contact, search] = self.loadContact()
         cal = self.loadCalculator()
@@ -163,25 +162,19 @@ class SearchACTController:
 
     def setContactFiles(self, *args, **kwargs):
         dataPath = tkinter.filedialog.askopenfilename(
-            title='Select a key contact file',
+            title='Select a contact file',
             initialdir=self.rootPath,
-            filetypes=[('Pickle files', '.pickle')]
+            filetypes=[('Pickle files', '.pkl')]
         )
-        dmapPath = tkinter.filedialog.askopenfilename(
-            title='Select a terms key file',
-            initialdir=self.rootPath,
-            filetypes=[('Pickle files', '.pickle')]
-        )
-        if all([type(dataPath) == str, type(dmapPath) == str]):
+        if type(dataPath) == str:
             self.dataPath = dataPath
-            self.dmapPath = dmapPath
             [contact, search] = self.loadContact()
             self.model.updateContact(contact, search)
 
     def loadContact(self, *args, **kwargs):
-        if all([os.path.isfile(self.dataPath), os.path.isfile(self.dmapPath)]):
-            contact = modules.contact.Contact(self.dataPath, self.dmapPath)
-            search = modules.search.SearchACT(contact.DICT_TERM_KEY)
+        if os.path.isfile(self.dataPath):
+            contact = modules.contact.Contact(self.dataPath)
+            search = modules.search.SearchACT(contact.DICH_MAPPING_DATA)
             return [contact, search]
         else:
             self.view.openMsgWindow('No contact files', 'Error')
