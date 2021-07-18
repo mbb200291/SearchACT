@@ -1,10 +1,8 @@
-# 檔案名稱 .gitignore
-
-# 忽略 SearchACT.spec 檔案
-SearchACT.spec
+# ignore pyinstaller file
+*.spec
 *.exe
 
-# 忽略 資料夾
+# ignore directory
 __pycache__/
 build/
 dist/
@@ -13,3 +11,5 @@ examples/
 # personal data
 *.xlsx
 *.pickle
+*.pkl
+.vscode
