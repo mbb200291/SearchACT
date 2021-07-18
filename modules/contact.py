@@ -125,7 +125,7 @@ def read_excel(path_contact):
 
 def key_string_modify(key_string):
     #return f'${key_string.lower()}$'
-    return '@'.join(list(key_string))
+    return '@%s@'%'@'.join(list(key_string.strip()))
 
 def make_dict(path_contact):#, _nrows):
     ## Read excel
@@ -223,6 +223,11 @@ def make_dict(path_contact):#, _nrows):
         ## by department's abbreviation
         dict_mapping_data.setdefault(DI_Apartment_Abbrev.get(str(department), str(department)), set()).add(key_)
 
+        ## tokenized name
+        for n in (english_name, english_name_var2, english_name_var3, chinese_name):
+            for t in n.split(' '):
+                dict_mapping_data.setdefault(t.lower(), set()).add(key_)
+                dict_mapping_data.setdefault(t, set()).add(key_)
 
     #print(os.path.split(sys.path[0])[0])
     # path_term_key = path.join(path.dirname(path_contact), '_dict_terms_key')

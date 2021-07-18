@@ -106,16 +106,15 @@ def main():
             print(f'    version: {__version__}')
             print(f'    contact version: {contact_.DICH_MAPPING_DATA.get("*version")}')
         else:
-            #raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT)
-            try:
-                #set_matches = search(str_input)
-                #set_matches = parse_formula(str_input)
-                searchact_ = SearchACT(contact_.DICH_MAPPING_DATA)
-                set_matches = searchact_.parse_formula(str_input)
-            except:
-                print('formula error !')
-                set_matches = None
-                pass
+            searchact_ = SearchACT(contact_.DICH_MAPPING_DATA)
+            set_matches = searchact_.parse_formula(str_input)
+            # try:
+            #     searchact_ = SearchACT(contact_.DICH_MAPPING_DATA)
+            #     set_matches = searchact_.parse_formula(str_input)
+            # except:
+            #     print('formula error !')
+            #     set_matches = None
+            #     pass
             if not set_matches:
                 print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
             else:
