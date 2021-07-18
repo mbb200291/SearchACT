@@ -37,16 +37,10 @@ Calculator >>> exit
 pip install -r requirements.txt
 ```
 
-### copy latest contact file to directory of *SearchACT*
+### copy latest contact file to directory of *SearchACT*.
 
 ```
 \\tp-fs01\Public\公司通訊錄及座位表
-```
-
-### update dictionary
-
-```
-python UpdataContact.py
 ```
 
 ### run
@@ -66,7 +60,15 @@ python SearchACT-GUI.py
 ```
 pyinstaller -F SearchACT.py -i icon.ico
 pyinstaller -F SearchACT-GUI.py -i icon.ico
-pyinstaller -F UpdataContact.py
+```
+
+### update dictionary 
+*When programe inititate, it will check the version of excel file. If got newest excel file, will automatically update pickle data.)*
+However, you still can use this command to update dictionary in iteractive window.
+
+```
+python SearchACT.py
+>>> *update
 ```
 
 ## ready-to-use .exe file can obtatin from tp-fs01\PUBLIC folder. Directly copy whole folder or just creating symbolic link to your local.
