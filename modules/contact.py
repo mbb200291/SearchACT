@@ -271,7 +271,8 @@ class Contact():
         return 0
     
     def re_build(self):
-        make_dict(locate_latest_contact_file())
+        #make_dict(locate_latest_contact_file())
+        make_dict(locate_latest_contact_file(path.split(self.PATH_DICH_MAPPING_DATA)[0]))
         self.DICH_MAPPING_DATA = self._load_data()
         '''
         import updata_contact
@@ -289,7 +290,10 @@ class Contact():
         pass
 
     def check_version(self):
-        if self.DICH_MAPPING_DATA.get('*version') != locate_latest_contact_file(basename=True):
+        if self.DICH_MAPPING_DATA.get('*version') != locate_latest_contact_file(
+            path.split(self.PATH_DICH_MAPPING_DATA)[0], 
+            basename=True
+            ):
             self.re_build()
 
 def main():
