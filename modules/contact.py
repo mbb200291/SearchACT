@@ -251,7 +251,11 @@ class Contact():
         self.DICH_MAPPING_DATA = self._load_data()
 
     def _load_data(self):
-        return read_pickle(self.PATH_DICH_MAPPING_DATA)
+        if path.isfile(self.PATH_DICH_MAPPING_DATA):
+            return read_pickle(self.PATH_DICH_MAPPING_DATA)
+        else:
+            make_dict(locate_latest_contact_file(path.split(self.PATH_DICH_MAPPING_DATA)[0]))
+            return read_pickle(self.PATH_DICH_MAPPING_DATA)
 
     def key_exist(self, str_input_KEY):
         #return hash(str_input_KEY) in self.DICH_MAPPING_DATA
