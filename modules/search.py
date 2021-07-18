@@ -38,7 +38,7 @@ class SearchACT():
     def __init__(self, di_term_key):
         self.DICT_TERM_KEY = di_term_key
 
-    def search(self, str_input):
+    def search(self, str_input, edit_distance_cutoff=2):
         '''
         Return by the matched keys by str_input.
 
@@ -49,7 +49,7 @@ class SearchACT():
                 if str_input in term:
                     for key in self.DICT_TERM_KEY[term]:
                         set_match_key.add(key)
-                if len(term) > 2 and len(str_input)>2 and min_edit_distance(term, str_input) < 2:
+                if len(term) > 2 and len(str_input)>2 and min_edit_distance(term, str_input) < edit_distance_cutoff:
                     for key in self.DICT_TERM_KEY[term]:
                         set_match_key.add(key)
 
