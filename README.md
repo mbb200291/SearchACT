@@ -62,8 +62,8 @@ python SearchACT-GUI.py
 ### compile as .exe on windows (recommend)
 
 ```
-pyinstaller -F SearchACT.py -i icon.ico
-pyinstaller -F SearchACT-GUI.py -i icon.ico
+pyinstaller --onefile SearchACT.py -i icon.ico
+pyinstaller --onefile SearchACT-GUI.py -i icon.ico
 ```
 
 ### update dictionary 
