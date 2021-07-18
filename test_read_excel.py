@@ -123,6 +123,9 @@ def excel_row_parser(sheet):
 #%%
 for r in excel_row_parser(wb.worksheets[0]):
     print(r)
-
-
-            
+#%%
+import pickle
+def read_pickle(path_):
+    with open(path_, 'rb') as file:
+        return pickle.load(file)
+#%%

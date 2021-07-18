@@ -13,9 +13,9 @@ from modules.help_info import help_
 __version__ = '2.0.0'
 
 PATH_OF_SCRIPT = path.dirname(argv[0])
-PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, '_dict_key_contacts.pkl')
-PATH_DICT_TERM_KEY = path.join(PATH_OF_SCRIPT, '_dict_terms_key.pkl')
-# PATH_DICT_DATA = path.join(PATH_OF_SCRIPT, '_dict_data.pkl')
+# PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, '_dict_key_contacts.pkl')
+# PATH_DICT_TERM_KEY = path.join(PATH_OF_SCRIPT, '_dict_terms_key.pkl')
+PATH_DICT_DATA = path.join(PATH_OF_SCRIPT, '_dict_data.pkl')
 LI_EXIST_WORDS = ['exit', 'bye', 'ex', 'bye bye', 'quit']
 
 
@@ -23,21 +23,25 @@ LI_EXIST_WORDS = ['exit', 'bye', 'ex', 'bye bye', 'quit']
 def main():
     print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
     calculator = cal.Calculator(cal.names, cal.ops)
+    contact_ = Contact(PATH_DICT_DATA)
+    
+    # check version
+    contact_.check_version()
+
     while True:
         str_input = input('\nSeach >>> ')#.lower()
-        contact_ = Contact(PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY)
-        searchact_ = SearchACT(contact_.DICT_TERM_KEY)
-    
-        # check version
-        contact_.check_version()
 
         # add search term function
-        if str_input in ['*addterm', '*add1']:
+        if str_input in ['*update']:
+            contact_.re_build()
+
+        elif str_input in ['*addterm', '*add1']:
             print('into adding mode')
             str_input_KEY = input('Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit. >>> ').lower()
             if str_input_KEY in LI_EXIST_WORDS:
                 break
-            elif str_input_KEY not in contact_.DICT_KEY_CONTACT.keys():
+            #elif hash(str_input_KEY) not in contact_.DICT_KEY_CONTACT.keys():
+            elif not contact_.key_exist(str_input_KEY):
                 print('*** The ID not exist. ***')
                 continue
             str_input_Term = input('Type the new search term or type "exit" to exit.\n>>> ').lower()
@@ -54,7 +58,8 @@ def main():
             str_input_KEY = input('Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit.\n>>> ').lower()
             if str_input_KEY in LI_EXIST_WORDS:
                 break
-            elif str_input_KEY not in contact_.DICT_KEY_CONTACT.keys():
+            #elif hash(str_input_KEY) not in contact_.DICH_MAPPING_DATA.keys():
+            elif not contact_.key_exist(str_input_KEY):
                 print('*** The ID not exist. ***')
                 continue
             str_add_info = input('Type the new info of the person or type "exit" to exit.\n>>> ').lower()
@@ -92,13 +97,20 @@ def main():
                         print('formula error !')
                         pass
         elif str_input in ['*help', '*h']:
-            print(f' version:{__version__}')
+            print()
+            print(f'    version: {__version__}')
+            print(f'    contact version: {contact_.DICH_MAPPING_DATA.get("*version")}')
             print(help_())
+        elif str_input in ['*version', '*ver']:    
+            print()
+            print(f'    version: {__version__}')
+            print(f'    contact version: {contact_.DICH_MAPPING_DATA.get("*version")}')
         else:
             #raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT)
             try:
                 #set_matches = search(str_input)
                 #set_matches = parse_formula(str_input)
+                searchact_ = SearchACT(contact_.DICH_MAPPING_DATA)
                 set_matches = searchact_.parse_formula(str_input)
             except:
                 print('formula error !')
@@ -108,7 +120,7 @@ def main():
                 print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
             else:
                 for r in set_matches:
-                    print('\n', '>'+'\t'.join(contact_.DICT_KEY_CONTACT[r]))
+                    print('\n', '>'+'\t'.join(contact_.DICH_MAPPING_DATA[r]))
 
 if __name__ == '__main__':
     main()

@@ -15,6 +15,7 @@ class SearchACT():
         '''
         set_match_key = set()
         for term in self.DICT_TERM_KEY:
+            #print(term)
             if str_input in term:
                 for key in self.DICT_TERM_KEY[term]:
                     set_match_key.add(key)

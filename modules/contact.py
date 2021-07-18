@@ -87,15 +87,19 @@ def read_pickle(path_):
         return pickle.load(file)
 
 def locate_latest_contact_file(cwd=None, basename=False):
-        name_contact = sorted([x for x in listdir(cwd) if ".xlsx" in x and not x.startswith('~$')], key=path.getmtime)[-1]
-        print('# Read file:', name_contact)
-        if not basename:
-            if not cwd:
-                cwd = path.dirname(path.abspath(__file__))+'..'
-            #print(cwd)
-            return path.join(cwd, name_contact)
-        else:
-            return name_contact
+    li_name_contact = sorted([x for x in listdir(cwd) if ".xlsx" in x and not x.startswith('~$')], key=path.getmtime)
+    if li_name_contact:
+        name_contact = li_name_contact[-1]
+    else:
+        return ''
+
+    if not basename:
+        if not cwd:
+            cwd = path.dirname(path.abspath(__file__))+'/..'
+        #print(cwd)
+        return path.join(cwd, name_contact)
+    else:
+        return name_contact
 
 
 def remove_blank(tab):
@@ -118,6 +122,10 @@ def read_excel(path_contact):
         print('*** Contact file not exist')
         return None
 '''
+
+def key_string_modify(key_string):
+    #return f'${key_string.lower()}$'
+    return '@'.join(list(key_string))
 
 def make_dict(path_contact):#, _nrows):
     ## Read excel
@@ -179,7 +187,8 @@ def make_dict(path_contact):#, _nrows):
         
         print(chinese_name, english_name)
         
-        key_ = hash(email.split('@')[0]) # convert to int by hashing
+        key_ = key_string_modify(email.split('@')[0])
+        
         ## first part: key_ to result
         dict_mapping_data[key_] = [str(x) for x in [chinese_name, english_name, department, email, phone, cellphone]]
 
@@ -208,6 +217,7 @@ def make_dict(path_contact):#, _nrows):
         dict_mapping_data.setdefault(str(phone), set()).add(key_)
         # by cell phone num
         dict_mapping_data.setdefault(str(cellphone), set()).add(key_)
+        dict_mapping_data.setdefault(str(cellphone).replace('-', '').replace(' ', ''), set()).add(key_)
         # by department
         dict_mapping_data.setdefault(str(department), set()).add(key_)
         ## by department's abbreviation
@@ -233,23 +243,31 @@ class Contact():
         self.PATH_DICH_MAPPING_DATA = PATH_DICH_MAPPING_DATA
         # self.DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
         # self.DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
-        self.DICH_MAPPING_DATA = read_pickle(PATH_DICH_MAPPING_DATA)
+        self.DICH_MAPPING_DATA = self._load_data()
+
+    def _load_data(self):
+        return read_pickle(self.PATH_DICH_MAPPING_DATA)
+
+    def key_exist(self, str_input_KEY):
+        #return hash(str_input_KEY) in self.DICH_MAPPING_DATA
+        return key_string_modify(str_input_KEY) #' in self.DICH_MAPPING_DATA
 
     def add_searchTerm_to_key(self, str_input_Term, str_input_KEY):
         #self.DICT_TERM_KEY.setdefault(str_input_Term, set()).add(str_input_KEY)
-        self.DICH_MAPPING_DATA.setdefault(str_input_Term, set()).add(str_input_KEY)
-        save_obj_to_pickle(path.splitext(self.PATH_DICH_MAPPING_DATA)[0], self.DICT_TERM_KEY)
+        self.DICH_MAPPING_DATA.setdefault(str_input_Term, set()).add(key_string_modify(str_input_KEY))
+        save_obj_to_pickle(path.splitext(self.PATH_DICH_MAPPING_DATA)[0], self.DICH_MAPPING_DATA)
         print(f'Successfuly add new search terms. "{str_input_Term}":"{str_input_KEY}"')
         return 0
 
     def add_contactInfo(self, str_input_KEY, str_add_info):
-        self.DICT_KEY_CONTACT[str_input_KEY].append(str_add_info)
-        save_obj_to_pickle(path.splitext(self.PATH_DICT_KEY_CONTACT)[0], self.DICT_KEY_CONTACT)
-        print(f'Successfuly add new info terms. "{self.DICT_KEY_CONTACT[str_input_KEY]}"')
+        self.DICH_MAPPING_DATA[key_string_modify(str_input_KEY)].append(str_add_info)
+        save_obj_to_pickle(path.splitext(self.PATH_DICH_MAPPING_DATA)[0], self.DICH_MAPPING_DATA)
+        print(f'Successfuly add new info terms. "{self.DICH_MAPPING_DATA[key_string_modify(str_input_KEY)]}"')
         return 0
     
     def re_build(self):
         make_dict(locate_latest_contact_file())
+        self.DICH_MAPPING_DATA = self._load_data()
         '''
         import updata_contact
         print('** this operation will wipe out the term created by your own. Sure?')
@@ -262,11 +280,11 @@ class Contact():
             pass
         '''
 
-    def rm_ifno(self):
+    def rm_info(self):
         pass
 
     def check_version(self):
-        if self.DICT_KEY_CONTACT.get('*version') != locate_latest_contact_file(basename=True):
+        if self.DICH_MAPPING_DATA.get('*version') != locate_latest_contact_file(basename=True):
             self.re_build()
 
 def main():
