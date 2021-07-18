@@ -21,6 +21,10 @@ python SearchACT.py # enter the interactive window
 
 >陳柏劭        Bruce Chen      次世代定序部    ******@*******.***  1520    ****-***-***
 
+>>> bne   # allow fuzzy search
+
+ >林邦齊        Ben Lin 人工智慧部      benlin@actgenomics.com  1624    0910-216-433
+
 >>> *cal    # entering calculator mode
 Calculator >>> 1+1*2
 answer:  3.0
