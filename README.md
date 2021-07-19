@@ -23,7 +23,7 @@ python SearchACT.py # enter the interactive window
 
 >>> bne   # allow fuzzy search
 
- >林邦齊        Ben Lin 人工智慧部      benlin@actgenomics.com  1624    0910-216-433
+ >林邦齊        Ben Lin 人工智慧部      ******@*******.***  1624    ****-***-***
 
 >>> *cal    # entering calculator mode
 Calculator >>> 1+1*2
