@@ -26,7 +26,7 @@ def min_edit_distance(str_target, str_input, cost_ins=1, cost_del=1, cost_sub=2,
                 matrix[j][i-1] + cost_del, # delete on input
                 matrix[j-1][i] + cost_ins, # insert on input
             )
-            if (i>2 and j>2) and str_target[i-1]==str_input[j-2] and str_target[i-2]==str_input[j-1]:
+            if (i>2 and j>2) and str_target[i-1]==str_input[j-2] and str_target[i-2]==str_input[j-1]: # switch on neighbor two nt
                 matrix[j][i] = min(
                     matrix[j][i], 
                     matrix[j-2][i-2] + cost_switch
@@ -38,7 +38,7 @@ class SearchACT():
     def __init__(self, di_term_key):
         self.DICT_TERM_KEY = di_term_key
 
-    def search(self, str_input):
+    def search(self, str_input, ed_cutoff=1, min_len=3):
         '''
         Return by the matched keys by str_input.
 
@@ -49,7 +49,8 @@ class SearchACT():
                 if str_input in term:
                     for key in self.DICT_TERM_KEY[term]:
                         set_match_key.add(key)
-                if len(term) > 2 and len(str_input)>2 and min_edit_distance(term, str_input) < 2:
+                
+                if (min_edit_distance(term, str_input) <= (ed_cutoff * min(len(term), len(str_input)) // 3)):
                     for key in self.DICT_TERM_KEY[term]:
                         set_match_key.add(key)
 

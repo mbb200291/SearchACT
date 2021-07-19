@@ -23,7 +23,7 @@ python SearchACT.py # enter the interactive window
 
 >>> bne   # allow fuzzy search
 
- >林邦齊        Ben Lin 人工智慧部      benlin@actgenomics.com  1624    0910-216-433
+ >林邦齊        Ben Lin 人工智慧部      ******@*******.***  1624    ****-***-***
 
 >>> *cal    # entering calculator mode
 Calculator >>> 1+1*2
@@ -62,8 +62,9 @@ python SearchACT-GUI.py
 ### compile as .exe on windows (recommend)
 
 ```
-pyinstaller --onefile SearchACT.py -i icon.ico
-pyinstaller --onefile SearchACT-GUI.py -i icon.ico
+pyinstaller -D SearchACT.py -i icon.ico 
+# if compiled exe lacking of `mkl_intel_thread.1.dll`, modify as below
+pyinstaller -D .\SearchACT.py -i icon.ico --add-binary 'mkl_intel_thread.1.dll;.'
 ```
 
 ### update dictionary 
