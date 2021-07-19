@@ -64,8 +64,10 @@ python SearchACT-GUI.py
 ```
 pyinstaller -D SearchACT.py -i icon.ico 
 pyinstaller -D SearchACT-GUI.py -i icon.ico 
-# if compiled exe lacking of `mkl_intel_thread.1.dll`, modify as below
+
+# if compiled exe lacking of `mkl_intel_thread.1.dll`, modify as below (have to manually find the dll file location)
 pyinstaller -D .\SearchACT.py -i icon.ico --add-binary 'mkl_intel_thread.1.dll;.'
+pyinstaller -D .\SearchACT-GUI.py -i icon.ico --add-binary 'mkl_intel_thread.1.dll;.'
 ```
 
 ### update dictionary 
