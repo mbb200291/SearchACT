@@ -7,14 +7,17 @@ from os import path, listdir
 import pickle
 from openpyxl import load_workbook
 
+
 def save_obj_to_pickle(path, obj): # will end with pickle
     print('# saving file to:', '%s.pickle'%path)
     with open('%s.pickle'%path, 'wb') as f_pkl:
         pickle.dump(obj, f_pkl)
 
+
 def read_pickle(path_):
     with open(path_, 'rb') as file:
         return pickle.load(file)
+
 
 class ContactParser:
     def __init__(self, path_file):
@@ -71,10 +74,6 @@ class ContactParser:
                 yield (phone, office,  department, chinese_name, english_name, email, cellphone)
             elif finish:
                 break
-#%%
-# parser = ContactParser('examples/20210715行動基因通訊錄含部門.xlsx')
-# for i in parser.iter_contact_data():
-#     print(i)
 
 
 def save_obj_to_pickle(path_, obj): #will end with pickle
@@ -82,24 +81,28 @@ def save_obj_to_pickle(path_, obj): #will end with pickle
     with open('%s.pkl'%path_, 'wb') as f_pkl:
         pickle.dump(obj, f_pkl)
 
+
 def read_pickle(path_):
     with open(path_, 'rb') as file:
         return pickle.load(file)
 
-def locate_latest_contact_file(cwd=None, basename=False):
+
+def locate_latest_contact_file(cwd=None, return_basename=False):
+    if not cwd: # using script relative location (for bug test use)
+        cwd = path.dirname(path.abspath(__file__))+'/..'
+    
     li_name_contact = sorted([x for x in listdir(cwd) if ".xlsx" in x and not x.startswith('~$')], key=path.getmtime)
     if li_name_contact:
         name_contact = li_name_contact[-1]
     else:
-        return ''
+        print('[ERROR] xlsx file not found!')
+        name_contact = ''
 
-    if not basename:
-        if not cwd:
-            cwd = path.dirname(path.abspath(__file__))+'/..'
-        #print(cwd)
-        return path.join(cwd, name_contact)
-    else:
+    #print(name_contact)
+    if return_basename:
         return name_contact
+    else:
+        return path.join(cwd, name_contact)
 
 
 def remove_blank(tab):
@@ -110,34 +113,16 @@ def remove_blank(tab):
     #Finally, restrict dataframe to rows before the first NaN entry
     return tab.iloc[:(blank_row_index)]
 
-'''
-def read_excel(path_contact):
-    if path.isfile(path_contact):
-        #contacts = pd.read_excel(path_contact, nrows=nrows)
-        contacts = remove_blank(pd.read_excel(path_contact))
-        contacts.dropna(how="all", inplace=True)
-#        contacts = contacts.loc[(~contacts['信     箱'].isna()) & (contacts['信     箱'].str.contains("@"))]
-        return contacts, path.splitext(path_contact)[-1]
-    else:
-        print('*** Contact file not exist')
-        return None
-'''
 
 def key_string_modify(key_string):
-    #return f'${key_string.lower()}$'
     return '@%s@'%'@'.join(list(key_string.strip()))
 
+
 def make_dict(path_contact):#, _nrows):
-    ## Read excel
-    # contacts, excel_file_name = read_excel(path_contact)
-    # if type(contacts)!=pd.core.frame.DataFrame:
-    #     return None
     contacts = ContactParser(path_contact)
     excel_file_name = path.basename(path_contact)
 
     ## Make dictionary
-    # dict_to_phone = {} #
-    # dict_phone_Info = {'*version':excel_file_name, '*ver':excel_file_name}
     dict_mapping_data = {'*version':excel_file_name, '*ver':excel_file_name}
     
     DI_Apartment_Abbrev = {
@@ -194,8 +179,6 @@ def make_dict(path_contact):#, _nrows):
 
         ## second part: query items to key
         dict_mapping_data.setdefault(chinese_name, set()).add(key_)
-        #dict_mapping_data.setdefault(chinese_name[:-1], set()).add(key_)
-        #dict_mapping_data.setdefault(chinese_name[-1], set()).add(key_)
         dict_mapping_data.setdefault(chinese_name[0], set()).add(key_)
         dict_mapping_data.setdefault(english_name, set()).add(key_)
         dict_mapping_data.setdefault(english_name.lower(), set()).add(key_) # lower
@@ -229,40 +212,26 @@ def make_dict(path_contact):#, _nrows):
                 dict_mapping_data.setdefault(t.lower(), set()).add(key_)
                 dict_mapping_data.setdefault(t, set()).add(key_)
 
-    #print(os.path.split(sys.path[0])[0])
-    # path_term_key = path.join(path.dirname(path_contact), '_dict_terms_key')
-    # path_key_contact = path.join(path.dirname(path_contact), '_dict_key_contacts')
     path_data = path.join(path.dirname(path_contact), '_dict_data')
-
-    # save_obj_to_pickle(path_term_key, dict_to_phone)
-    # save_obj_to_pickle(path_key_contact, dict_phone_Info)
-    #save_obj_to_pickle(path_data, [dict_to_phone, dict_phone_Info])
     save_obj_to_pickle(path_data, dict_mapping_data)
+    return dict_mapping_data
 
 
 class Contact():
-    #def __init__(self, PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY):
     def __init__(self, PATH_DICH_MAPPING_DATA):
-        # self.PATH_DICT_KEY_CONTACT = PATH_DICT_KEY_CONTACT
-        # self.PATH_DICT_TERM_KEY = PATH_DICT_TERM_KEY
         self.PATH_DICH_MAPPING_DATA = PATH_DICH_MAPPING_DATA
-        # self.DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
-        # self.DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
         self.DICH_MAPPING_DATA = self._load_data()
 
-    def _load_data(self):
-        if path.isfile(self.PATH_DICH_MAPPING_DATA):
-            return read_pickle(self.PATH_DICH_MAPPING_DATA)
+    def _load_data(self, rebuild=False):
+        if not path.isfile(self.PATH_DICH_MAPPING_DATA) or rebuild:
+            return make_dict(locate_latest_contact_file(path.split(self.PATH_DICH_MAPPING_DATA)[0]))
         else:
-            make_dict(locate_latest_contact_file(path.split(self.PATH_DICH_MAPPING_DATA)[0]))
             return read_pickle(self.PATH_DICH_MAPPING_DATA)
-
+        
     def key_exist(self, str_input_KEY):
-        #return hash(str_input_KEY) in self.DICH_MAPPING_DATA
         return key_string_modify(str_input_KEY) #' in self.DICH_MAPPING_DATA
 
     def add_searchTerm_to_key(self, str_input_Term, str_input_KEY):
-        #self.DICT_TERM_KEY.setdefault(str_input_Term, set()).add(str_input_KEY)
         self.DICH_MAPPING_DATA.setdefault(str_input_Term, set()).add(key_string_modify(str_input_KEY))
         save_obj_to_pickle(path.splitext(self.PATH_DICH_MAPPING_DATA)[0], self.DICH_MAPPING_DATA)
         print(f'Successfuly add new search terms. "{str_input_Term}":"{str_input_KEY}"')
@@ -275,30 +244,18 @@ class Contact():
         return 0
     
     def re_build(self):
-        #make_dict(locate_latest_contact_file())
-        make_dict(locate_latest_contact_file(path.split(self.PATH_DICH_MAPPING_DATA)[0]))
-        self.DICH_MAPPING_DATA = self._load_data()
-        '''
-        import updata_contact
-        print('** this operation will wipe out the term created by your own. Sure?')
-        str_input = input('\n(Y/N) >>> ').lower()
-        if str_input == 'y':
-            updata_contact.MakeDict(updata_contact.locate_contact_file())
-            DICT_KEY_CONTACT = read_pickle(PATH_DICT_KEY_CONTACT)
-            DICT_TERM_KEY = read_pickle(PATH_DICT_TERM_KEY)
-        else:
-            pass
-        '''
-
+        self.DICH_MAPPING_DATA = self._load_data(rebuild=True)
+        
     def rm_info(self):
         pass
 
     def check_version(self):
         if self.DICH_MAPPING_DATA.get('*version') != locate_latest_contact_file(
             path.split(self.PATH_DICH_MAPPING_DATA)[0], 
-            basename=True
+            return_basename=True
             ):
             self.re_build()
+
 
 def main():
     print('# Loading')
