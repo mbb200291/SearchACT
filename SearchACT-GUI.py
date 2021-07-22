@@ -92,7 +92,7 @@ class MessageWindow(tkinter.Toplevel):
         self.messageBox = tkinter.Message(self, text=text, width=400)
         self.messageBox.pack(fill='both')
         self.bind('<Escape>', self.close)
-        self.focus_force()
+        self.after(10, self.focus_force)
         self.grab_set()
 
     def close(self, *args, **kwargs):
@@ -137,7 +137,7 @@ class SearchACTController:
         self.view.searchButton['command'] = self.search
         self.view.calculateButton['command'] = self.calculate
         self.view.mainMenu.add_command(label='Info', command=self.info)
-        self.view.fileMenu.add_command(label='Load', command=self.setContactFiles)
+        self.view.fileMenu.add_command(label='Update', command=self.rebuildContactFiles)
         self.view.inputText.focus_set()
         self.view.inputText.bind('<Return>', self.search)
         self.view.inputText.bind('<KP_Enter>', self.search)
@@ -145,8 +145,8 @@ class SearchACTController:
         self.view.inputText.bind('<Control-Key-KP_Enter>', self.calculate)
         self.view.inputText.bind('<Control-KeyRelease-a>', self.selectAll)
         self.view.inputText.bind('<Control-KeyRelease-A>', self.selectAll)
-        self.view.bind('<Control-Key-l>', self.setContactFiles)
-        self.view.bind('<Control-Key-L>', self.setContactFiles)
+        self.view.bind('<Control-Key-l>', self.rebuildContactFiles)
+        self.view.bind('<Control-Key-L>', self.rebuildContactFiles)
         self.view.bind('<Control-Key-i>', self.info)
         self.view.bind('<Control-Key-I>', self.info)
         self.view.bind('<Double-Escape>', self.close)
@@ -161,6 +161,7 @@ class SearchACTController:
         text = f'Main version {mver}\nGUI version {gver}'
         self.view.openMsgWindow(text, 'Info')
 
+<<<<<<< HEAD
     def setContactFiles(self, *args, **kwargs):
         dataPath = tkinter.filedialog.askopenfilename(
             title='Select a key contact file',
@@ -186,6 +187,15 @@ class SearchACTController:
         else:
             self.view.openMsgWindow('No contact files', 'Error')
             return [None, None]
+=======
+    def rebuildContactFiles(self, *args, **kwargs):
+        self.model.contact.re_build()
+
+    def loadContact(self, *args, **kwargs):
+        contact = modules.contact.Contact(self.dataPath)
+        search = modules.search.SearchACT(contact.DICT_MAPPING_DATA)
+        return [contact, search]
+>>>>>>> 08a54d3 (- Modify auto update the pickle file)
 
     def loadCalculator(self, *args, **kwargs):
         names = modules.calculator.names

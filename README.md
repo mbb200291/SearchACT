@@ -89,7 +89,7 @@ python SearchACT-GUI.py # enter the interactive window
 - Search button: serch the input text in contact
 - Calculate button: calculate the input expression
 - File menu
-  - Load: input pickle files (one for contact data, the other one for searching)
+  - Update: rebuild the pickle file from an excel
 - Info menu: show version information
 
 ## Keyboard shortcuts
@@ -97,7 +97,7 @@ python SearchACT-GUI.py # enter the interactive window
 - Text + `Enter`: saerch the input text in contact
 - Text + `Ctrl` + `Enter`: calculate the input expression
 - `Ctrl` + `A`/`a`: select all text in the input text field
-- `Ctrl` + `L`/`l`: input pickle files
+- `Ctrl` + `L`/`l`: rebuild the pickle file
 - `Ctrl` + `I`/`i`: show version information
 - Subwindow + `Esc`: close the subwindow
 - Main window + Double `Esc`: exit GUI
