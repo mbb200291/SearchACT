@@ -161,7 +161,6 @@ class SearchACTController:
         text = f'Main version {mver}\nGUI version {gver}'
         self.view.openMsgWindow(text, 'Info')
 
-<<<<<<< HEAD
     def setContactFiles(self, *args, **kwargs):
         dataPath = tkinter.filedialog.askopenfilename(
             title='Select a key contact file',
@@ -187,15 +186,6 @@ class SearchACTController:
         else:
             self.view.openMsgWindow('No contact files', 'Error')
             return [None, None]
-=======
-    def rebuildContactFiles(self, *args, **kwargs):
-        self.model.contact.re_build()
-
-    def loadContact(self, *args, **kwargs):
-        contact = modules.contact.Contact(self.dataPath)
-        search = modules.search.SearchACT(contact.DICT_MAPPING_DATA)
-        return [contact, search]
->>>>>>> 08a54d3 (- Modify auto update the pickle file)
 
     def loadCalculator(self, *args, **kwargs):
         names = modules.calculator.names
