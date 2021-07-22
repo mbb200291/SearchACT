@@ -5,32 +5,32 @@ PATH_DICT_DATA = path.join(PATH_OF_SCRIPT, '_dict_data.pkl')
 LI_EXIST_WORDS = ['exit', 'bye', 'ex', 'quit']
 
 # initiate
-contact_ = Contact(PATH_DICT_DATA) 
+contact = Contact(PATH_DICT_DATA) 
 
 # rebuild dictionary from excel
-contact_.re_build()
+contact.re_build()
 
 # add search term
-contact_.add_searchTerm_to_key(str_input_term, str_input_key)
+contact.add_searchTerm_to_key(str_input_term, str_input_key)
 
 # add contact information
-contact_.add_contact_info(str_input_key, str_add_info)
+contact.add_contact_info(str_input_key, str_add_info)
 
 # remove lookup term (not yet implement)
-contact_.rm_term(str_input_term)
+contact.rm_term(str_input_term)
 
 # remove person contact info (not yet implement)
-contact_.rm_contact(str_input_key)
+contact.rm_contact(str_input_key)
 
 ```
 
 # search controller
 ```
 # initiate (note: should re-initiate if the contact manage had rebuild or add term)
-searchact_ = SearchACT(contact_.DICT_MAPPING_DATA) 
+searchact = SearchACT(contact.DICT_MAPPING_DATA) 
 
 # get persons contact
-ls_persons = searchact_.get_person(str_input) # list 
+ls_persons = searchact.get_person(str_input) # list 
 ```
 
 # calculator usage

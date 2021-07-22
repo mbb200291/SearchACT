@@ -18,14 +18,14 @@ LI_EXIST_WORDS = ['exit', 'bye', 'ex', 'quit']
 def main():
     print('Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.')
     calculator = cal.Calculator(cal.names, cal.ops)
-    contact_ = Contact(PATH_DICT_DATA)
+    contact = Contact(PATH_DICT_DATA)
 
     while True:
         str_input = input('\nSeach >>> ')
 
         # re-build contact dictionary
         if str_input in ['*update']:
-            contact_.re_build()
+            contact.re_build()
 
         # add search term
         elif str_input in ['*addterm', '*add1']:
@@ -33,13 +33,13 @@ def main():
             str_input_key = input('Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit. >>> ').lower()
             if str_input_key in LI_EXIST_WORDS:
                 break
-            elif not contact_.key_exist(str_input_key):
+            elif not contact.key_exist(str_input_key):
                 print('*** The ID not exist. ***')
                 continue
             str_input_term = input('Type the new search term or type "exit" to exit.\n>>> ').lower()
             if str_input_term in LI_EXIST_WORDS:
                 break
-            ans = contact_.add_searchTerm_to_key(str_input_term, str_input_key)
+            ans = contact.add_searchTerm_to_key(str_input_term, str_input_key)
             if ans == 0:
                 pass
             else:
@@ -50,13 +50,13 @@ def main():
             str_input_key = input('Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit.\n>>> ').lower()
             if str_input_key in LI_EXIST_WORDS:
                 break
-            elif not contact_.key_exist(str_input_key):
+            elif not contact.key_exist(str_input_key):
                 print('*** The ID not exist. ***')
                 continue
             str_add_info = input('Type the new info of the person or type "exit" to exit.\n>>> ').lower()
             if str_add_info in LI_EXIST_WORDS:
                 break
-            ans = contact_.add_contact_info(str_input_key, str_add_info)
+            ans = contact.add_contact_info(str_input_key, str_add_info)
             if ans == 0:
                 pass
             else:
@@ -65,7 +65,7 @@ def main():
         # remove contact info function
         elif str_input in ['*rminfo', '*rm2']:
             pass
-            #contact_.rm_ifno()
+            #contact.rm_ifno()
 
         # exit 
         elif str_input in LI_EXIST_WORDS:
@@ -93,18 +93,18 @@ def main():
         elif str_input in ['*help', '*h']:
             print()
             print(f'    version: {__version__}')
-            print(f'    contact version: {contact_.DICT_MAPPING_DATA.get("*version")}')
+            print(f'    contact version: {contact.DICT_MAPPING_DATA.get("*version")}')
             print(help_())
         
         # get version info
         elif str_input in ['*version', '*ver']:    
             print()
             print(f'    version: {__version__}')
-            print(f'    contact version: {contact_.DICT_MAPPING_DATA.get("*version")}')
+            print(f'    contact version: {contact.DICT_MAPPING_DATA.get("*version")}')
         else:
             try:
-                searchact_ = SearchACT(contact_.DICT_MAPPING_DATA)
-                ls_persons = searchact_.get_person(str_input)
+                searchact = SearchACT(contact.DICT_MAPPING_DATA)
+                ls_persons = searchact.get_person(str_input)
                 if ls_persons:
                     for person in ls_persons:
                         print('\n', '>'+'\t'.join(person))
