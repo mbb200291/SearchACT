@@ -48,7 +48,7 @@ class ContactParser:
                 idx_email = list_cell.index('hcchen@actgenomics.com')     
             if '0955-622-114' in list_cell:
                 idx_cellphone = list_cell.index('0955-622-114') 
-        return idx_phone, idx_office,  idx_department, idx_chinese_name, idx_english_name,idx_email, idx_cellphone 
+        return idx_phone, idx_office, idx_department, idx_chinese_name, idx_english_name,idx_email, idx_cellphone 
     
     def iter_contact_data(self):
         '''
@@ -118,7 +118,7 @@ def key_string_modify(key_string):
     return '@%s@'%'@'.join(list(key_string.strip()))
 
 
-def make_dict(path_contact):#, _nrows):
+def make_dict(path_contact):
     contacts = ContactParser(path_contact)
     excel_file_name = path.basename(path_contact)
 
@@ -164,7 +164,6 @@ def make_dict(path_contact):#, _nrows):
         "資訊處": "IT", 
         "人力資源處": "HR", 
     }
-    #for i,R in contacts.iterrows():
     for (phone, office,  department, chinese_name, english_name, email, 
     cellphone) in contacts.iter_contact_data():
         english_name_var2 = english_name.replace('-', ' ').strip()
@@ -218,44 +217,49 @@ def make_dict(path_contact):#, _nrows):
 
 
 class Contact():
-    def __init__(self, PATH_DICH_MAPPING_DATA):
-        self.PATH_DICH_MAPPING_DATA = PATH_DICH_MAPPING_DATA
-        self.DICH_MAPPING_DATA = self._load_data()
+    def __init__(self, PATH_DICT_MAPPING_DATA):
+        self.PATH_DICT_MAPPING_DATA = PATH_DICT_MAPPING_DATA
+        self.DICT_MAPPING_DATA = self._load_data()
+        self.check_version()
 
     def _load_data(self, rebuild=False):
-        if not path.isfile(self.PATH_DICH_MAPPING_DATA) or rebuild:
-            return make_dict(locate_latest_contact_file(path.split(self.PATH_DICH_MAPPING_DATA)[0]))
+        if not path.isfile(self.PATH_DICT_MAPPING_DATA) or rebuild:
+            return make_dict(locate_latest_contact_file(path.split(self.PATH_DICT_MAPPING_DATA)[0]))
         else:
-            return read_pickle(self.PATH_DICH_MAPPING_DATA)
+            return read_pickle(self.PATH_DICT_MAPPING_DATA)
         
     def key_exist(self, str_input_KEY):
-        return key_string_modify(str_input_KEY) #' in self.DICH_MAPPING_DATA
+        return key_string_modify(str_input_KEY)
 
     def add_searchTerm_to_key(self, str_input_Term, str_input_KEY):
-        self.DICH_MAPPING_DATA.setdefault(str_input_Term, set()).add(key_string_modify(str_input_KEY))
-        save_obj_to_pickle(path.splitext(self.PATH_DICH_MAPPING_DATA)[0], self.DICH_MAPPING_DATA)
+        self.DICT_MAPPING_DATA.setdefault(str_input_Term, set()).add(key_string_modify(str_input_KEY))
+        save_obj_to_pickle(path.splitext(self.PATH_DICT_MAPPING_DATA)[0], self.DICT_MAPPING_DATA)
         print(f'Successfuly add new search terms. "{str_input_Term}":"{str_input_KEY}"')
         return 0
 
-    def add_contactInfo(self, str_input_KEY, str_add_info):
-        self.DICH_MAPPING_DATA[key_string_modify(str_input_KEY)].append(str_add_info)
-        save_obj_to_pickle(path.splitext(self.PATH_DICH_MAPPING_DATA)[0], self.DICH_MAPPING_DATA)
-        print(f'Successfuly add new info terms. "{self.DICH_MAPPING_DATA[key_string_modify(str_input_KEY)]}"')
+    def add_contact_info(self, str_input_KEY, str_add_info):
+        self.DICT_MAPPING_DATA[key_string_modify(str_input_KEY)].append(str_add_info)
+        save_obj_to_pickle(path.splitext(self.PATH_DICT_MAPPING_DATA)[0], self.DICT_MAPPING_DATA)
+        print(f'Successfuly add new info terms. "{self.DICT_MAPPING_DATA[key_string_modify(str_input_KEY)]}"')
         return 0
     
     def re_build(self):
-        self.DICH_MAPPING_DATA = self._load_data(rebuild=True)
+        self.DICT_MAPPING_DATA = self._load_data(rebuild=True)
         
-    def rm_info(self):
+    def rm_info(self, key): # not yet implement
+        pass
+
+    def rm_term(self, term): # not yet implement
         pass
 
     def check_version(self):
-        if self.DICH_MAPPING_DATA.get('*version') != locate_latest_contact_file(
-            path.split(self.PATH_DICH_MAPPING_DATA)[0], 
+        if self.DICT_MAPPING_DATA.get('*version') != locate_latest_contact_file(
+            path.split(self.PATH_DICT_MAPPING_DATA)[0], 
             return_basename=True
             ):
+            print("new version excel found, re-build dictionary.")
             self.re_build()
-
+            
 
 def main():
     print('# Loading')

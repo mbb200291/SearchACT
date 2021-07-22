@@ -35,8 +35,8 @@ def min_edit_distance(str_target, str_input, cost_ins=1, cost_del=1, cost_sub=2,
 
 
 class SearchACT():
-    def __init__(self, di_term_key):
-        self.DICT_TERM_KEY = di_term_key
+    def __init__(self, dict_mapping_data):
+        self.DICT_MAPPING_DATA = dict_mapping_data
 
     def search(self, str_input, ed_cutoff=1, min_len=3):
         '''
@@ -44,16 +44,17 @@ class SearchACT():
 
         '''
         set_match_key = set()
-        for term in self.DICT_TERM_KEY:
-            if not term.startswith('@') and not term.endswith('@'):
+        for term in self.DICT_MAPPING_DATA:
+            if not term.startswith('@'): # skip key string
+                # string partial matching
                 if str_input in term:
-                    for key in self.DICT_TERM_KEY[term]:
-                        set_match_key.add(key)
-                
-                if (min_edit_distance(term, str_input) <= (ed_cutoff * min(len(term), len(str_input)) // 3)):
-                    for key in self.DICT_TERM_KEY[term]:
+                    for key in self.DICT_MAPPING_DATA[term]:
                         set_match_key.add(key)
 
+                # string fuzzy matching
+                if (min_edit_distance(term, str_input) <= (ed_cutoff * min(len(term), len(str_input)) // 3)): # cutoff of edit distance will increase when input getting larger
+                    for key in self.DICT_MAPPING_DATA[term]:
+                        set_match_key.add(key)
         return set_match_key
 
     def cal_multi_condi_li(self, li_ele):
@@ -107,3 +108,22 @@ class SearchACT():
                 temp += e
         li_element.append(temp)    
         return self.cal_multi_condi_li(li_element)
+
+    def get_person(self, str_input):
+        set_matches = self.parse_formula(str_input)
+        return [self.DICT_MAPPING_DATA[r] for r in set_matches]
+        # for r in set_matches:
+        #     print('\n', '>'+'\t'.join(contact_.DICT_MAPPING_DATA[r]))
+
+        # try:
+        #     searchact_ = SearchACT(self.DICT_MAPPING_DATA)
+        #     set_matches = searchact_.parse_formula(str_input)
+        # except:
+        #     print('formula error !')
+        #     set_matches = None
+        #     pass
+        # if not set_matches:
+        #     print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
+        # else:
+        #     for r in set_matches:
+        #         print('\n', '>'+'\t'.join(contact_.DICT_MAPPING_DATA[r]))
