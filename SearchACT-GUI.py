@@ -161,31 +161,13 @@ class SearchACTController:
         text = f'Main version {mver}\nGUI version {gver}'
         self.view.openMsgWindow(text, 'Info')
 
-    def setContactFiles(self, *args, **kwargs):
-        dataPath = tkinter.filedialog.askopenfilename(
-            title='Select a key contact file',
-            initialdir=self.rootPath,
-            filetypes=[('Pickle files', '.pickle')]
-        )
-        dmapPath = tkinter.filedialog.askopenfilename(
-            title='Select a terms key file',
-            initialdir=self.rootPath,
-            filetypes=[('Pickle files', '.pickle')]
-        )
-        if all([type(dataPath) == str, type(dmapPath) == str]):
-            self.dataPath = dataPath
-            self.dmapPath = dmapPath
-            [contact, search] = self.loadContact()
-            self.model.updateContact(contact, search)
+    def rebuildContactFiles(self, *args, **kwargs):
+        self.model.contact.re_build()
 
     def loadContact(self, *args, **kwargs):
-        if all([os.path.isfile(self.dataPath), os.path.isfile(self.dmapPath)]):
-            contact = modules.contact.Contact(self.dataPath, self.dmapPath)
-            search = modules.search.SearchACT(contact.DICT_TERM_KEY)
-            return [contact, search]
-        else:
-            self.view.openMsgWindow('No contact files', 'Error')
-            return [None, None]
+        contact = modules.contact.Contact(self.dataPath)
+        search = modules.search.SearchACT(contact.DICT_MAPPING_DATA)
+        return [contact, search]
 
     def loadCalculator(self, *args, **kwargs):
         names = modules.calculator.names
