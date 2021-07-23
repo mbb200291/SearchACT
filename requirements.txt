@@ -1,3 +1,3 @@
 pyinstaller
-pandas
-pre-commit
+openpyxl
+

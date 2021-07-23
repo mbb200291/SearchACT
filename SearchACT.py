@@ -1,107 +1,66 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Sat Aug  3 23:52:45 2019
-
-@author: linbangqi
-@Co-author: bruce
-
-Version log:
-- 1.0.0
-- 1.1.0:
-    - organize by id to value
-    - include more keys
-- 1.3.0
-- 1.3.1
-- 1.4.0: add calculator
-- 1.5.0: calculator triggering part
-- 1.6.0:
-    - caculator loop inside until exit
-    - modify a file name for other OS
-- 1.7.0:
-    - multiple rule syntax
-    - calculator re-implement
-    - search key by string matching
-- 1.8.0:
-    - new structure
-
-Next version
-- include removing function
-
+To lookup the contact info by query the name or other info.
 """
-
-__version__ = "1.8.0"
-
-
-from sys import argv
+from os import error
 from os import path
+from sys import argv
 
-# import time
-
-# custom functions
-from modules.search import SearchACT
-from modules.calculator import parse
+import modules.calculator as cal
 from modules.contact import Contact
 from modules.help_info import help_
+from modules.search import SearchACT
 
-###
 
+__version__ = "2.0.0"
 PATH_OF_SCRIPT = path.dirname(argv[0])
-PATH_DICT_KEY_CONTACT = path.join(PATH_OF_SCRIPT, "_dict_key_contacts.pickle")
-PATH_DICT_TERM_KEY = path.join(PATH_OF_SCRIPT, "_dict_terms_key.pickle")
-
-LI_EXIST_WORDS = ["exit", "bye", "ex", "bye bye", "quit"]
+PATH_DICT_DATA = path.join(PATH_OF_SCRIPT, "_dict_data.pkl")
+LI_EXIST_WORDS = ["exit", "bye", "ex", "quit"]
 
 
-# main process
 def main():
     print(
-        'Type part of name to search ACT contact. Type "*help" to get detail instruction. \
-        Type "exit" to leave.\nType *cal to enter caculation mode.'
+        'Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.'
     )
-    #    global DICT_KEY_CONTACT, DICT_TERM_KEY,  PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY
+    calculator = cal.Calculator(cal.names, cal.ops)
+    contact = Contact(PATH_DICT_DATA)
+
     while True:
-        str_input = input("\nSeach >>> ")  # .lower()
-        Contact_ = Contact(PATH_DICT_KEY_CONTACT, PATH_DICT_TERM_KEY)
-        SearchACT_ = SearchACT(Contact_.DICT_TERM_KEY)
-        """
-        if str_input in DICT_TERM_KEY:
-            ## matched
-            for k in DICT_TERM_KEY[str_input]:
-                print('\n', '>'+'\t'.join(DICT_KEY_CONTACT[k]))
-        """
-        # add search term function
-        if str_input in ["*addterm", "*add1"]:
+        str_input = input("\nSeach >>> ")
+
+        # re-build contact dictionary
+        if str_input in ["*update"]:
+            contact.re_build()
+
+        # add search term
+        elif str_input in ["*addterm", "*add1"]:
             print("into adding mode")
-            str_input_KEY = input(
-                'Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") \
-                 or type "exit" to exit. >>> '
+            str_input_key = input(
+                'Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit. >>> '
             ).lower()
-            if str_input_KEY in LI_EXIST_WORDS:
+            if str_input_key in LI_EXIST_WORDS:
                 break
-            elif str_input_KEY not in Contact_.DICT_KEY_CONTACT.keys():
+            elif not contact.key_exist(str_input_key):
                 print("*** The ID not exist. ***")
                 continue
-            str_input_Term = input(
+            str_input_term = input(
                 'Type the new search term or type "exit" to exit.\n>>> '
             ).lower()
-            if str_input_Term in LI_EXIST_WORDS:
+            if str_input_term in LI_EXIST_WORDS:
                 break
-            ans = Contact_.add_searchTerm_to_key(str_input_Term, str_input_KEY)
+            ans = contact.add_searchTerm_to_key(str_input_term, str_input_key)
             if ans == 0:
                 pass
             else:
                 break
 
-        # add contact info function
+        # add contact info to key
         elif str_input in ["*addinfo", "*add2"]:
-            str_input_KEY = input(
-                'Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") \
-                or type "exit" to exit.\n>>> '
+            str_input_key = input(
+                'Type the E-mail ID (for example, type "benlin" for "benlin@actgenomics.com") or type "exit" to exit.\n>>> '
             ).lower()
-            if str_input_KEY in LI_EXIST_WORDS:
+            if str_input_key in LI_EXIST_WORDS:
                 break
-            elif str_input_KEY not in Contact_.DICT_KEY_CONTACT.keys():
+            elif not contact.key_exist(str_input_key):
                 print("*** The ID not exist. ***")
                 continue
             str_add_info = input(
@@ -109,27 +68,27 @@ def main():
             ).lower()
             if str_add_info in LI_EXIST_WORDS:
                 break
-
-            ans = Contact_.add_contactInfo(str_input_KEY, str_add_info)
+            ans = contact.add_contact_info(str_input_key, str_add_info)
             if ans == 0:
                 pass
             else:
                 break
+
         # remove contact info function
         elif str_input in ["*rminfo", "*rm2"]:
             pass
-            # Contact_.rm_ifno()
-        elif str_input in ["*rebuild", "*rb"]:
-            pass
-            # Contact_.re_build()
-        elif str_input.startswith("$"):
-            print(eval(str_input[1:]))
+            # contact.rm_ifno()
+
+        # exit
         elif str_input in LI_EXIST_WORDS:
             break
+
+        # say hello
         elif str_input in ["hi", "hello"]:
             print("HI")
-            # break
-        elif str_input in ["*cal", "*c"]:
+
+        # calculator
+        elif str_input in ["*cal", "*c", "$"]:
             print("Caculation_mode:")
             while True:
                 str_input = input("\nCalculator >>> ")
@@ -137,28 +96,35 @@ def main():
                     break
                 else:
                     try:
-                        print("answer: ", parse(str_input))
-                    except Exception as ex:
-                        print(f"formula error !: {ex}")
+                        print("answer: ", str(calculator.cal(str_input)))
+                    except error:
+                        print("formula error !")
                         pass
+
+        # help info
         elif str_input in ["*help", "*h"]:
-            print(f" version:{__version__}")
+            print()
+            print(f"    version: {__version__}")
+            print(f'    contact version: {contact.DICT_MAPPING_DATA.get("*version")}')
             print(help_())
+
+        # get version info
+        elif str_input in ["*version", "*ver"]:
+            print()
+            print(f"    version: {__version__}")
+            print(f'    contact version: {contact.DICT_MAPPING_DATA.get("*version")}')
         else:
-            # raw_match(str_input, DICT_TERM_KEY, DICT_KEY_CONTACT)
             try:
-                # set_matches = search(str_input)
-                # set_matches = parse_formula(str_input)
-                set_matches = SearchACT_.parse_formula(str_input)
-            except Exception as ex:
-                print(f"formula error !: {ex}")
-                set_matches = None
+                searchact = SearchACT(contact.DICT_MAPPING_DATA)
+                ls_persons = searchact.get_person(str_input)
+                if ls_persons:
+                    for person in ls_persons:
+                        print("\n", ">" + "\t".join(person))
+                else:
+                    print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
+            except error:
+                print("formula error !")
                 pass
-            if not set_matches:
-                print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
-            else:
-                for r in set_matches:
-                    print("\n", ">" + "\t".join(Contact_.DICT_KEY_CONTACT[r]))
 
 
 if __name__ == "__main__":
