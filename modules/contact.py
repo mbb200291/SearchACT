@@ -9,15 +9,15 @@ from os import path
 from openpyxl import load_workbook
 
 
-def save_obj_to_pickle(path, obj):  # will end with pickle
-    print("# saving file to:", "%s.pickle" % path)
-    with open("%s.pickle" % path, "wb") as f_pkl:
-        pickle.dump(obj, f_pkl)
+# def save_obj_to_pickle(path, obj):  # will end with pickle
+#     print("# saving file to:", "%s.pickle" % path)
+#     with open("%s.pickle" % path, "wb") as f_pkl:
+#         pickle.dump(obj, f_pkl)
 
 
-def read_pickle(path_):
-    with open(path_, "rb") as file:
-        return pickle.load(file)
+# def read_pickle(path_):
+#     with open(path_, "rb") as file:
+#         return pickle.load(file)
 
 
 class ContactParser:
@@ -114,15 +114,15 @@ class ContactParser:
                 break
 
 
-# def save_obj_to_pickle(path_, obj):  # will end with pickle
-#     print("# saving file to:", "%s.pkl" % path_)
-#     with open("%s.pkl" % path_, "wb") as f_pkl:
-#         pickle.dump(obj, f_pkl)
+def save_obj_to_pickle(path_, obj):  # will end with pickle
+    print("# saving file to:", "%s.pkl" % path_)
+    with open("%s.pkl" % path_, "wb") as f_pkl:
+        pickle.dump(obj, f_pkl)
 
 
-# def read_pickle(path_):
-#     with open(path_, "rb") as file:
-#         return pickle.load(file)
+def read_pickle(path_):
+    with open(path_, "rb") as file:
+        return pickle.load(file)
 
 
 def locate_latest_contact_file(cwd=None, return_basename=False):
@@ -319,10 +319,17 @@ class Contact:
         self.check_version()
 
     def _load_data(self, rebuild=False):
+
         if not path.isfile(self.PATH_DICT_MAPPING_DATA) or rebuild:
-            return make_dict(
-                locate_latest_contact_file(path.split(self.PATH_DICT_MAPPING_DATA)[0])
+
+            excel_file = locate_latest_contact_file(
+                path.split(self.PATH_DICT_MAPPING_DATA)[0]
             )
+
+            if excel_file == "":
+                return read_pickle(self.PATH_DICT_MAPPING_DATA)
+            else:
+                return make_dict(excel_file)
         else:
             return read_pickle(self.PATH_DICT_MAPPING_DATA)
 
@@ -350,6 +357,7 @@ class Contact:
         return 0
 
     def re_build(self):
+
         self.DICT_MAPPING_DATA = self._load_data(rebuild=True)
 
     def rm_info(self, key):  # not yet implement
