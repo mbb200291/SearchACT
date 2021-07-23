@@ -1,9 +1,9 @@
 """
 To lookup the contact info by query the name or other info.
 """
+import os
 from os import error
 from os import path
-from sys import argv
 
 import modules.calculator as cal
 from modules.contact import Contact
@@ -12,7 +12,7 @@ from modules.search import SearchACT
 
 
 __version__ = "2.0.0"
-PATH_OF_SCRIPT = path.dirname(argv[0])
+PATH_OF_SCRIPT = os.getcwd()
 PATH_DICT_DATA = path.join(PATH_OF_SCRIPT, "_dict_data.pkl")
 LI_EXIST_WORDS = ["exit", "bye", "ex", "quit"]
 
