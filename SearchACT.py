@@ -6,10 +6,10 @@ from os import error
 from os import path
 
 import modules.calculator as cal
+from modules.audio_input import audioRecords
 from modules.contact import Contact
 from modules.help_info import help_
 from modules.search import SearchACT
-
 
 __version__ = "2.0.0"
 PATH_OF_SCRIPT = os.getcwd()
@@ -23,6 +23,7 @@ def main():
     )
     calculator = cal.Calculator(cal.names, cal.ops)
     contact = Contact(PATH_DICT_DATA)
+    audio = audioRecords()
 
     while True:
         str_input = input("\nSeach >>> ")
@@ -100,6 +101,18 @@ def main():
                     except error:
                         print("formula error !")
                         pass
+        elif str_input in ["microphone"]:
+            response = audio.recognize_speech_from_microphone()
+
+            if response["prediction"] is not None:
+                input_text = response["prediction"]
+                searchact = SearchACT(contact.DICT_MAPPING_DATA)
+                ls_persons = searchact.get_person(input_text)
+                if ls_persons:
+                    for person in ls_persons:
+                        print("\n", ">" + "\t".join(person))
+                else:
+                    print(f'\n "{input_text}" not found. Retry or type "exit" to exit.')
 
         # help info
         elif str_input in ["*help", "*h"]:
