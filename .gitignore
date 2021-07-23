@@ -13,3 +13,5 @@ examples/
 *.pickle
 *.pkl
 .vscode
+
+Pipfile
