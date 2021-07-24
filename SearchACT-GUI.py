@@ -1,6 +1,5 @@
 import os
 import tkinter.filedialog
-
 import modules.calculator
 import modules.contact
 import modules.help_info
@@ -19,7 +18,6 @@ class SearchACTModel:
     def search(self, text):
         try:
             matchIDs = self.searcher.parse_formula(text)
-            print(matchIDs)
             if len(matchIDs) == 0:
                 return [[f"'{text}' not found."]]
             else:
@@ -194,7 +192,6 @@ class SearchACTController:
         text = self.view.inputText.get()
         result = self.model.calculate(text)
         self.view.outputContainer.setData(result)
-
 
 if __name__ == "__main__":
     app = SearchACTController()
