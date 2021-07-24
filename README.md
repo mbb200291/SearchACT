@@ -38,7 +38,7 @@ Calculator >>> exit
 ### install requirements by pip
 
 ```
-pip install -r requirements.txt
+pip install -r wheelhouse/requirements.txt --no-index --find-links wheelhouse
 ```
 
 ### copy latest contact file to directory of *SearchACT*.
