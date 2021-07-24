@@ -29,7 +29,7 @@ class audioRecords:
             self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
             # self.recognizer.pause_threshold = 0.8
             self.recognizer.phrase_time_limit = 3
-            print("Try to say something!")
+            # print("Try to say something!")
             audio = self.recognizer.listen(source, timeout=3)
 
         response = {"Success": True, "error": None, "prediction": None}

@@ -18,9 +18,13 @@ LI_EXIST_WORDS = ["exit", "bye", "ex", "quit"]
 
 
 def main():
-    print(
-        'Type part of name to search ACT contact. Type "*help" to get detail instruction. Type "exit" to leave.\nType *cal to enter caculation mode.'
+    print(''''Type part of name to search ACT contact. 
+    Type "*help" to get detail instruction. 
+    Type *cal to enter caculation mode. 
+    Type *mic to enter microphone mode.
+    Type "exit" to leave.'''
     )
+    
     calculator = cal.Calculator(cal.names, cal.ops)
     contact = Contact(PATH_DICT_DATA)
     audio = audioRecords()
@@ -98,15 +102,19 @@ def main():
                 else:
                     try:
                         print("answer: ", str(calculator.cal(str_input)))
-                    except error:
+                    except Exception :
                         print("formula error !")
                         pass
-        elif str_input in ["microphone"]:
+        
+        # audio input 
+        elif str_input in ["*microphone", "*mic"]:
+            print("Try to say something!", flush=True)
+            print("\nMicrophone >>> ", end='', flush=True)
             response = audio.recognize_speech_from_microphone()
-
             if response["prediction"] is not None:
                 input_text = response["prediction"]
                 searchact = SearchACT(contact.DICT_MAPPING_DATA)
+                print(input_text, flush=True)
                 ls_persons = searchact.get_person(input_text)
                 if ls_persons:
                     for person in ls_persons:
@@ -135,7 +143,8 @@ def main():
                         print("\n", ">" + "\t".join(person))
                 else:
                     print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
-            except error:
+            #except error:
+            except Exception :
                 print("formula error !")
                 pass
 
