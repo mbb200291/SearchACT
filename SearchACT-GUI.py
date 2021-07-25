@@ -4,7 +4,6 @@ import modules.calculator
 import modules.contact
 import modules.help_info
 import modules.search
-import SearchACT
 
 __version__ = "2.0.0"
 
@@ -161,9 +160,8 @@ class SearchACTController:
         self.view.destroy()
 
     def info(self, *args, **kwargs):
-        mver = SearchACT.__version__
         gver = __version__
-        text = f"Main version {mver}\nGUI version {gver}"
+        text = f"Version {gver}"
         self.view.openMsgWindow(text, "Info")
 
     def rebuildContactFiles(self, *args, **kwargs):
