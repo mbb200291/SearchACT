@@ -1,7 +1,6 @@
 """
 To lookup the contact info by query the name or other info.
 """
-from os import error
 from os import path
 from sys import argv
 
@@ -9,6 +8,7 @@ import modules.calculator as cal
 from modules.audio_input import audioRecords
 from modules.contact import Contact
 from modules.help_info import help_
+from modules.keyboardCatcher import keyboardCatcher
 from modules.search import SearchACT
 
 __version__ = "2.0.0"
@@ -18,18 +18,23 @@ LI_EXIST_WORDS = ["exit", "bye", "ex", "quit"]
 
 
 def main():
-    print(''''Type part of name to search ACT contact. 
-    Type "*help" to get detail instruction. 
-    Type *cal to enter caculation mode. 
-    Type *mic to enter microphone mode.
-    Type "exit" to leave.'''
+    print(
+        """Type part of name to search ACT contact.
+        Type "*help" to get detail instruction.
+        Type *cal to enter caculation mode.
+        Type *mic or press F9 to enter microphone mode.
+        Type "exit" or press ESC to leave.
+        """
     )
-    
+
     calculator = cal.Calculator(cal.names, cal.ops)
     contact = Contact(PATH_DICT_DATA)
     audio = audioRecords()
 
     while True:
+        KC = keyboardCatcher(SearchACT=SearchACT, contact=contact, audio=audio)
+        KC.start()
+
         str_input = input("\nSeach >>> ")
 
         # re-build contact dictionary
@@ -102,14 +107,14 @@ def main():
                 else:
                     try:
                         print("answer: ", str(calculator.cal(str_input)))
-                    except Exception :
+                    except Exception:
                         print("formula error !")
                         pass
-        
-        # audio input 
+
+        # audio input
         elif str_input in ["*microphone", "*mic"]:
             print("Try to say something!", flush=True)
-            print("\nMicrophone >>> ", end='', flush=True)
+            print("\nMicrophone >>> ", end="", flush=True)
             response = audio.recognize_speech_from_microphone()
             if response["prediction"] is not None:
                 input_text = response["prediction"]
@@ -143,8 +148,8 @@ def main():
                         print("\n", ">" + "\t".join(person))
                 else:
                     print(f'\n "{str_input}" not found. Retry or type "exit" to exit.')
-            #except error:
-            except Exception :
+            # except error:
+            except Exception:
                 print("formula error !")
                 pass
 
