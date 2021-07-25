@@ -1,2 +1,4 @@
+PyAudio 
 pyinstaller
-pandas
+openpyxl
+SpeechRecognition

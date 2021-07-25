@@ -1,0 +1,4 @@
+PyAudio 
+pyinstaller
+openpyxl
+SpeechRecognition
