@@ -38,3 +38,10 @@ ls_persons = searchact.get_person(str_input) # list
 calculator = cal.Calculator(cal.names, cal.ops)
 calculator.cal(str_input)
 ```
+
+# audio input usage
+```
+response = audio.recognize_speech_from_microphone()
+if response["prediction"] is not None:
+    input_text = response["prediction"]
+```
