@@ -14,6 +14,8 @@ PATH_DICT_DATA = path.join(PATH_OF_SCRIPT, "_dict_data.pkl")
 
 # The key combination to check
 
+flag = False
+
 
 class keyboardCatcher(keyboard.Listener):
     """
@@ -32,7 +34,7 @@ class keyboardCatcher(keyboard.Listener):
         self.controller = Controller()
 
     def on_press(self, key):
-
+        global flag
         # Use this to monitor event of keyboard pressing
         if key == keyboard.Key.esc:
 
@@ -44,24 +46,26 @@ class keyboardCatcher(keyboard.Listener):
             self.controller.press(Key.enter)
             self.controller.release(Key.enter)
 
-        elif key == keyboard.Key.f9:
-            self.enter_audio_mode()
+        elif key == keyboard.Key.media_volume_up:
+            if not flag:
+                flag = True
+                self.enter_audio_mode()
 
     def on_release(self, key):
-
+        global flag
         # Use this when you want to Stop listener
         if key == keyboard.Key.esc:
             # Stop listener
             return False
 
     def enter_audio_mode(self):
-
+        global flag
         # print("Try to say something!", flush=True)
         print("\nMicrophone >>> ", end="")
 
         response = self.audio.recognize_speech_from_microphone()
 
-        if response["prediction"] is not None:
+        if response["success"] is True:
             input_text = response["prediction"]
             searchact = self.SearchACT(self.contact.DICT_MAPPING_DATA)
             print(input_text, flush=True)
@@ -72,7 +76,11 @@ class keyboardCatcher(keyboard.Listener):
             else:
                 print(f'\n "{input_text}" not found. Retry or type "exit" to exit.')
 
+        else:
+            print(f'\n{response["error"]}')
+
         print("Seach >>> ", end="", flush=True)
+        flag = False
 
 
 def main():

@@ -25,26 +25,28 @@ class audioRecords:
         Transcript your speech to words predict.
 
         """
-        with self.microphone as source:
-            self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
-            # self.recognizer.pause_threshold = 0.8
-            self.recognizer.phrase_time_limit = 3
-            # print("Try to say something!")
-            audio = self.recognizer.listen(source, timeout=3)
-
         response = {"Success": True, "error": None, "prediction": None}
 
         try:
+            with self.microphone as source:
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
+                # self.recognizer.pause_threshold = 0.8
+                self.recognizer.phrase_time_limit = 3
+                # print("Try to say something!")
+                audio = self.recognizer.listen(source, timeout=3)
+
             record_chinese = self.recognizer.recognize_google(audio, language="zh-TW")
             # record_english = self.recognizer.recognize_google(audio, language ="en-US")
 
             response["prediction"] = record_chinese
+            return response
 
         except speech_recognition.WaitTimeoutError as e:
             response["success"] = False
             response[
                 "error"
             ] = f"listening timed out while waiting for phrase to start: {e}"
+            return response
 
         except speech_recognition.UnknownValueError as e:
             # cannot recoginize
@@ -52,6 +54,7 @@ class audioRecords:
             response[
                 "error"
             ] = f"Google Speech Recognition could not understand audio: {e}"
+            return response
 
         except speech_recognition.RequestError as e:
             # api end point error
@@ -60,7 +63,7 @@ class audioRecords:
                 "error"
             ] = f"Could not request results from Google Speech Recognition service: {e}"
 
-        return response
+            return response
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ def main():
         """Type part of name to search ACT contact.
         Type "*help" to get detail instruction.
         Type *cal to enter caculation mode.
-        Type *mic or press F9 to enter microphone mode.
+        Type *mic or press media_volume_up to enter microphone mode.
         Type "exit" or press ESC to leave.
         """
     )
