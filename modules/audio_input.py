@@ -28,6 +28,7 @@ class audioRecords:
         response = {"Success": True, "error": None, "prediction": None}
 
         try:
+
             with self.microphone as source:
                 self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
                 # self.recognizer.pause_threshold = 0.8
@@ -62,6 +63,13 @@ class audioRecords:
             response[
                 "error"
             ] = f"Could not request results from Google Speech Recognition service: {e}"
+
+            return response
+
+        except OSError as e:
+            # OSError
+            response["Success"] = False
+            response["error"] = f"OSError: {e}"
 
             return response
 
