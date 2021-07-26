@@ -42,7 +42,7 @@ class audioRecords:
             return response
 
         except speech_recognition.WaitTimeoutError as e:
-            response["success"] = False
+            response["Success"] = False
             response[
                 "error"
             ] = f"listening timed out while waiting for phrase to start: {e}"
@@ -50,7 +50,7 @@ class audioRecords:
 
         except speech_recognition.UnknownValueError as e:
             # cannot recoginize
-            response["success"] = False
+            response["Success"] = False
             response[
                 "error"
             ] = f"Google Speech Recognition could not understand audio: {e}"
@@ -58,7 +58,7 @@ class audioRecords:
 
         except speech_recognition.RequestError as e:
             # api end point error
-            response["success"] = False
+            response["Success"] = False
             response[
                 "error"
             ] = f"Could not request results from Google Speech Recognition service: {e}"

@@ -65,7 +65,7 @@ class keyboardCatcher(keyboard.Listener):
 
         response = self.audio.recognize_speech_from_microphone()
 
-        if response["success"] is True:
+        if response["Success"] is True:
             input_text = response["prediction"]
             searchact = self.SearchACT(self.contact.DICT_MAPPING_DATA)
             print(input_text, flush=True)
