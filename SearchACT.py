@@ -1,8 +1,12 @@
 """
 To lookup the contact info by query the name or other info.
 """
+import os
+import sys
+import time
 from os import path
-from sys import argv
+
+from dotenv import load_dotenv
 
 import modules.calculator as cal
 from modules.audio_input import audioRecords
@@ -11,8 +15,20 @@ from modules.help_info import help_
 from modules.keyboardCatcher import keyboardCatcher
 from modules.search import SearchACT
 
-__version__ = "2.0.0"
-PATH_OF_SCRIPT = path.dirname(argv[0])
+
+load_dotenv()
+
+__author__ = os.getenv("AUTHOR", ["Ben Lin", "Bruce Chen", "Kuan Hang Lin"])
+__license__ = os.getenv("LICENSE", "MIT 2.0")
+__maintainer__ = os.getenv("MAINTAINER", ["Ben Lin", "Bruce Chen", "Kuan Hang Lin"])
+__contact__ = os.getenv("CONTACT", "brucechen@actgenomics.com")
+__email__ = os.getenv("EMAIL", "brucechen@actgenomics.com")
+__status__ = os.getenv("STATUS", "Production")
+__copyright__ = os.getenv("COPYRIGHT", "Copyright 2021, ACT Genomics Co., LTD.")
+__deprecated__ = os.getenv("DEPRECATED", False)
+__version__ = os.getenv("VERSION", "2.0.0")
+
+PATH_OF_SCRIPT = os.path.dirname(os.path.abspath(__file__))
 PATH_DICT_DATA = path.join(PATH_OF_SCRIPT, "_dict_data.pkl")
 LI_EXIST_WORDS = ["exit", "bye", "ex", "quit"]
 
@@ -27,8 +43,24 @@ def main():
         """
     )
 
+    if getattr(sys, "frozen", False):
+        # If the application is run as a bundle, the PyInstaller bootloader
+        # extends the sys module by a flag frozen=True and sets the app
+        # path into variable _MEIPASS'.
+        application_path = os.path.dirname(sys.executable)
+    else:
+        application_path = os.path.dirname(os.path.abspath(__file__))
+
+    while True:
+        try:
+            contact = Contact(application_path)
+        except Exception as e:
+            print(e)
+            time.sleep(10)
+        else:
+            break
+
     calculator = cal.Calculator(cal.names, cal.ops)
-    contact = Contact(PATH_DICT_DATA)
     audio = audioRecords()
 
     while True:
@@ -39,7 +71,10 @@ def main():
 
         # re-build contact dictionary
         if str_input in ["*update"]:
-            contact.re_build()
+            print(contact.check_version())
+
+        elif str_input in ["clear"]:
+            os.system("cls" if os.name == "nt" else "clear")
 
         # add search term
         elif str_input in ["*addterm", "*add1"]:
@@ -118,7 +153,7 @@ def main():
             response = audio.recognize_speech_from_microphone()
             if response["prediction"] is not None:
                 input_text = response["prediction"]
-                searchact = SearchACT(contact.DICT_MAPPING_DATA)
+                searchact = SearchACT(contact.data)
                 print(input_text, flush=True)
                 ls_persons = searchact.get_person(input_text)
                 if ls_persons:
@@ -131,17 +166,17 @@ def main():
         elif str_input in ["*help", "*h"]:
             print()
             print(f"    version: {__version__}")
-            print(f'    contact version: {contact.DICT_MAPPING_DATA.get("*version")}')
+            print(f'    contact version: {contact.data.get("*version")}')
             print(help_())
 
         # get version info
         elif str_input in ["*version", "*ver"]:
             print()
             print(f"    version: {__version__}")
-            print(f'    contact version: {contact.DICT_MAPPING_DATA.get("*version")}')
+            print(f'    contact version: {contact.data.get("*version")}')
         else:
             try:
-                searchact = SearchACT(contact.DICT_MAPPING_DATA)
+                searchact = SearchACT(contact.data)
                 ls_persons = searchact.get_person(str_input)
                 if ls_persons:
                     for person in ls_persons:

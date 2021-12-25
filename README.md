@@ -38,7 +38,11 @@ Calculator >>> exit
 ### install requirements by pip
 
 ```
-pip install -r wheelhouse/requirements.txt --no-index --find-links wheelhouse
+pip install -r requirements.txt
+if error shows during pyAudio install...
+try (On windows)
+pip install pipwin
+pipwin install pyaudio
 ```
 
 ### copy latest contact file to directory of *SearchACT*.
@@ -62,12 +66,17 @@ python SearchACT-GUI.py
 ### compile as .exe on windows (recommend)
 
 ```
-pyinstaller -D SearchACT.py -i icon.ico 
-pyinstaller -D SearchACT-GUI.py -i icon.ico 
+pyinstaller -F SearchACT.py -i images/icon.ico 
+pyinstaller -F SearchACT-GUI.py -i images/icon.ico 
+
+# if you want to use upx to compress, go to https://github.com/upx/upx/releases/tag/v3.96 downloading your version.
+then use...
+pyinstaller -F SearchACT.py -i images/icon.ico  --upx-dir "your upx dir"
+pyinstaller -F SearchACT-GUI.py -i images/icon.ico  --upx-dir "your upx dir"
 
 # if compiled exe lacking of `mkl_intel_thread.1.dll`, modify as below (have to manually find the dll file location)
-pyinstaller -D .\SearchACT.py -i icon.ico --add-binary 'mkl_intel_thread.1.dll;.'
-pyinstaller -D .\SearchACT-GUI.py -i icon.ico --add-binary 'mkl_intel_thread.1.dll;.'
+pyinstaller -D .\SearchACT.py -i images/icon.ico --add-binary 'mkl_intel_thread.1.dll;.'
+pyinstaller -D .\SearchACT-GUI.py -i images/icon.ico --add-binary 'mkl_intel_thread.1.dll;.'
 ```
 
 ### update dictionary 

@@ -2,33 +2,92 @@
 To manage dictionary update operations.
 
 """
+import os
+import pathlib
 import pickle
+import sys
+import unicodedata
 from os import listdir
 from os import path
+from typing import Dict
+from typing import Union
 
 from openpyxl import load_workbook
 
-class ContactParser:
-    def __init__(self, path_file):
-        self.path_file = path_file
+from .crud import get_department_all
+from .install import main as init_db
 
-        self.sheet = load_workbook(path_file).worksheets[0]
-        (
-            self.idx_phone,
-            self.idx_office,
-            self.idx_department,
-            self.idx_chinese_name,
-            self.idx_english_name,
-            self.idx_email,
-            self.idx_cellphone,
-        ) = self._get_colname_index()
-        print("Load excel file:", path_file)
+
+class Contact:
+    def __init__(self, cwd=None):
+        self._cwd = cwd or (
+            os.path.dirname(sys.executable)
+            if getattr(sys, "frozen", False)
+            else pathlib.Path(__file__).parent.parent.resolve()
+        )
+        self._path_file = self.locate_latest_contact_file(cwd=self.cwd)
+        self._col_index = {
+            "idx_phone": 0,
+            "idx_office": 1,
+            "idx_department": 2,
+            "idx_chinese_name": 3,
+            "idx_english_name": 4,
+            "idx_email": 5,
+            "idx_cellphone": 6,
+        }
+        self._data = self.read_pickle(path.join(self.cwd, "_dict_data.pkl"))
+
+    @property
+    def cwd(self):
+        return self._cwd
+
+    @property
+    def path_file(self):
+        return self._path_file
+
+    @path_file.setter
+    def path_file(self, path_file: str):
+        self._path_file = path_file
+
+    @property
+    def col_index(self):
+        return self._col_index
+
+    @col_index.setter
+    def col_index(self, mapping_of_contact_cols: dict):
+        self._col_index = mapping_of_contact_cols
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, dict_mapping_data: dict):
+        self._data = dict_mapping_data
+
+    def _parse_contact(self) -> Dict:
+
+        return dict(
+            zip(
+                (
+                    "idx_phone",
+                    "idx_office",
+                    "idx_department",
+                    "idx_chinese_name",
+                    "idx_english_name",
+                    "idx_email",
+                    # "idx_cellphone"
+                ),
+                self._get_colname_index(),
+            )
+        )
 
     def _get_colname_index(self):
         # =============================================================================
         #     lookup the correct column index by impossible-to-change content
         # =============================================================================
-        for row in self.sheet.iter_rows():
+        sheet = load_workbook(self.path_file).worksheets[0]
+        for row in sheet.iter_rows():
             list_cell = list(map(lambda x: x.value, row))
             if 1100 in list_cell:
                 idx_phone = list_cell.index(1100)
@@ -42,8 +101,8 @@ class ContactParser:
                 idx_english_name = list_cell.index("Hua-Chien Chen")
             if "hcchen@actgenomics.com" in list_cell:
                 idx_email = list_cell.index("hcchen@actgenomics.com")
-            if "0955-622-114" in list_cell:
-                idx_cellphone = list_cell.index("0955-622-114")
+            # if "0955-622-114" in list_cell:
+            #     idx_cellphone = list_cell.index("0955-622-114")
         return (
             idx_phone,
             idx_office,
@@ -51,17 +110,34 @@ class ContactParser:
             idx_chinese_name,
             idx_english_name,
             idx_email,
-            idx_cellphone,
+            # idx_cellphone,
         )
+
+    def locate_latest_contact_file(self, cwd: str) -> Union[None, str]:
+
+        name_contact = None
+
+        li_name_contact = sorted(
+            [x for x in listdir(cwd) if ".xlsx" in x and not x.startswith("~$")],
+            key=path.getmtime,
+        )
+
+        if li_name_contact:
+            name_contact = li_name_contact[-1]
+        # else:
+        #     print("[ERROR] xlsx files not found!, using default version of contact.")
+
+        return path.join(cwd, name_contact) if name_contact else name_contact
 
     def iter_contact_data(self):
         """
         generator of excel data
         """
+        sheet = load_workbook(self.path_file).worksheets[0]
         start = finish = False
-        for row in self.sheet.iter_rows():
+        for row in sheet.iter_rows():
             list_row = list(row)
-            # print(list_row[0])
+            # print(list_row)
             (
                 phone,
                 office,
@@ -69,19 +145,8 @@ class ContactParser:
                 chinese_name,
                 english_name,
                 email,
-                cellphone,
-            ) = (
-                list_row[x].value
-                for x in (
-                    self.idx_phone,
-                    self.idx_office,
-                    self.idx_department,
-                    self.idx_chinese_name,
-                    self.idx_english_name,
-                    self.idx_email,
-                    self.idx_cellphone,
-                )
-            )
+                # cellphone,
+            ) = (list_row[x].value for x in (self._col_index.values()))
             # print(phone)
             if phone in [1100, 1500, 1200]:
                 start = True
@@ -91,288 +156,180 @@ class ContactParser:
             if start and not finish:
                 yield (
                     phone,
-                    office,
-                    department,
-                    chinese_name,
-                    english_name,
-                    email,
-                    cellphone,
+                    unicodedata.normalize("NFKC", office),
+                    unicodedata.normalize("NFKC", department),
+                    unicodedata.normalize("NFKC", chinese_name),
+                    unicodedata.normalize("NFKC", english_name),
+                    unicodedata.normalize("NFKC", email),
+                    # cellphone,
                 )
             elif finish:
                 break
 
+    def _key_string_modify(self, key_string):
+        return "@%s@" % "@".join(list(key_string.strip()))
 
-def save_obj_to_pickle(path_, obj):  # will end with pickle
-    print("# saving file to:", "%s.pkl" % path_)
-    with open("%s.pkl" % path_, "wb") as f_pkl:
-        pickle.dump(obj, f_pkl)
+    def rebuild_dict(self, cwd):
+        self.path_file = self.locate_latest_contact_file(cwd=cwd)
+        self.make_dict()
 
+    def make_dict(self) -> dict:
+        assert (
+            self.path_file is not None
+        ), "檔案不存在，請先設定檔案路徑。 e.g self.path_file = 'some_path_to_file'"
 
-def read_pickle(path_):
-    with open(path_, "rb") as file:
-        return pickle.load(file)
+        self.col_index = self._parse_contact()
 
+        excel_file_name = path.basename(self.path_file)
 
-def locate_latest_contact_file(cwd=None, return_basename=False):
-    if not cwd:  # using script relative location (for bug test use)
-        cwd = path.dirname(path.abspath(__file__)) + "/.."
+        init_db()
 
-    name_contact = ""
+        # Make dictionary
+        dict_mapping_data = {"*version": excel_file_name, "*ver": excel_file_name}
 
-    li_name_contact = sorted(
-        [x for x in listdir(cwd) if ".xlsx" in x and not x.startswith("~$")],
-        key=path.getmtime,
-    )
+        for (
+            phone,
+            office,
+            department,
+            chinese_name,
+            english_name,
+            email,
+            # cellphone,
+        ) in self.iter_contact_data():
+            english_name_var2 = english_name.replace("-", " ").strip()
+            english_name_var3 = english_name.replace("-", "").strip()
 
-    if li_name_contact:
-        name_contact = li_name_contact[-1]
-    else:
-        print("[ERROR] xlsx file not found!, using default version.")
-        return_basename = True
+            key_ = self._key_string_modify(email.split("@")[0])
 
-    # print(name_contact)
-    if return_basename:
-        return name_contact
-    else:
-        return path.join(cwd, name_contact)
+            # first part: key_ to result
+            dict_mapping_data[key_] = [
+                str(x) for x in [chinese_name, english_name, department, email, phone]
+            ]
 
+            # second part: query items to key
+            dict_mapping_data.setdefault(chinese_name, set()).add(key_)
+            dict_mapping_data.setdefault(chinese_name[0], set()).add(key_)
+            dict_mapping_data.setdefault(english_name, set()).add(key_)
+            dict_mapping_data.setdefault(english_name.lower(), set()).add(key_)  # lower
+            dict_mapping_data.setdefault(english_name_var2, set()).add(key_)
+            dict_mapping_data.setdefault(english_name_var2.lower(), set()).add(
+                key_
+            )  # lower
+            dict_mapping_data.setdefault(english_name_var3, set()).add(key_)
+            dict_mapping_data.setdefault(english_name_var3.lower(), set()).add(
+                key_
+            )  # lower
+            dict_mapping_data.setdefault(
+                "".join([x[0].upper() for x in english_name.split()]), set()
+            ).add(
+                key_
+            )  # abbrev eng name (eg, Shu-Jen Chen => SJC)
+            dict_mapping_data.setdefault(
+                "".join([x[0].upper() for x in english_name_var2.split()]), set()
+            ).add(
+                key_
+            )  # abbrev eng name
+            dict_mapping_data.setdefault(
+                "".join([x[0].upper() for x in english_name_var3.split()]), set()
+            ).add(
+                key_
+            )  # abbrev eng name
 
-def remove_blank(tab):
-    # First, find NaN entries in first column
-    blank_row_bool = tab.iloc[:, 4].isna()
-    # Next, get index of first NaN entry
-    blank_row_index = [i for i, x in enumerate(blank_row_bool) if x][0]
-    # Finally, restrict dataframe to rows before the first NaN entry
-    return tab.iloc[:(blank_row_index)]
+            dict_mapping_data.setdefault(
+                english_name.split()[-1][0].upper()
+                + "".join([x[0].upper() for x in english_name.split()[:-1]]),
+                set(),
+            ).add(
+                key_
+            )  # abbrev eng name (eg, Shu Jen Chen => CSJ)
+            dict_mapping_data.setdefault(
+                english_name.split()[-1][0].upper()
+                + "".join([x[0].upper() for x in english_name_var2.split()[:-1]]),
+                set(),
+            ).add(
+                key_
+            )  # abbrev eng name
+            dict_mapping_data.setdefault(
+                english_name.split()[-1][0].upper()
+                + "".join([x[0].upper() for x in english_name_var3.split()[:-1]]),
+                set(),
+            ).add(
+                key_
+            )  # abbrev eng name
 
+            # email user id
+            dict_mapping_data.setdefault(email.split("@")[0].lower(), set()).add(key_)
+            # by Phone num
+            dict_mapping_data.setdefault(str(phone), set()).add(key_)
+            # by cell phone num
+            # dict_mapping_data.setdefault(str(cellphone), set()).add(key_)
+            # dict_mapping_data.setdefault(
+            #     str(cellphone).replace("-", "").replace(" ", ""), set()
+            # ).add(key_)
+            # by department
+            dict_mapping_data.setdefault(str(department), set()).add(key_)
+            # by department's abbreviation
+            dict_mapping_data.setdefault(
+                {i.name: i.abbreviation for i in get_department_all()}.get(
+                    str(department), str(department)
+                ),
+                set(),
+            ).add(key_)
+            # tokenized name
+            for n in (english_name, english_name_var2, english_name_var3, chinese_name):
+                for t in n.split(" "):
+                    dict_mapping_data.setdefault(t.lower(), set()).add(key_)
+                    dict_mapping_data.setdefault(t, set()).add(key_)
 
-def key_string_modify(key_string):
-    return "@%s@" % "@".join(list(key_string.strip()))
+        path_data = path.join(self.cwd, "_dict_data")
+        self.save_pickle(path_data, dict_mapping_data)
+        return dict_mapping_data
 
+    def save_pickle(self, path_, obj):  # will end with pickle
+        print("# saving file to:", "%s.pkl" % path_)
+        with open("%s.pkl" % path_, "wb") as f_pkl:
+            pickle.dump(obj, f_pkl)
 
-def make_dict(path_contact):
+    def read_pickle(self, path_):
+        assert os.path.isfile(path_), "pickle檔案不存在，請放在同一資料夾下。"
+        with open(path_, "rb") as file:
+            return pickle.load(file)
 
-    if path_contact == "":
-        return ""
+    def check_version(self):
+        try:
+            self._path_file = self.locate_latest_contact_file(cwd=self.cwd)
 
-    contacts = ContactParser(path_contact)
-    excel_file_name = path.basename(path_contact)
+            if not self.path_file:
+                return "檔案不存在，請先將xlsx放在同一目錄下。"
 
-    # Make dictionary
-    dict_mapping_data = {"*version": excel_file_name, "*ver": excel_file_name}
+            excel_version = path.basename(self.path_file)
 
-    DI_Apartment_Abbrev = {
-        "執行長室": "CEO",
-        "技術中心": "CTO",
-        "營運中心": "CFO",
-        # "Group CFO": "",
-        "研究開發處": "RD",
-        "研究開發部": "RD",
-        # "技術移轉部": "",
-        # "智慧財產部": "",
-        # "商業卓越處": "",
-        # "系統整合部": "",
-        # "產品管理部": "",
-        "生物資訊暨人工智慧處": "BI",
-        "生物資訊部": "BI",
-        "人工智慧部": "AI",
-        "數據分析部": "DA",
-        "數據智能部": "DI",
-        # "資料科學處": "",
-        # "分子檢驗處": "",
-        "次世代定序部": "NGS",
-        "轉譯醫學處": "TGI",
-        "癌症基因體部": "",
-        # "專案管理部": "PM",
-        "醫藥資訊部": "MI",
-        # "臨床醫學部": "",
-        "品保與環境監控部": "QA",
-        "法規事務處": "RA",
-        # "銷售業務處": "",
-        # "銷售業務部": "",
-        # "業務行政部": "",
-        # "臨床衛教部": "",
-        # "行政資源處": "",
-        # "行政資源部": "",
-        # "會計處": "",
-        # "財務與出納部": "",
-        "事業暨企業發展處": "BD",
-        "資訊處": "IT",
-        "人力資源處": "HR",
-    }
-    for (
-        phone,
-        office,
-        department,
-        chinese_name,
-        english_name,
-        email,
-        cellphone,
-    ) in contacts.iter_contact_data():
-        english_name_var2 = english_name.replace("-", " ").strip()
-        english_name_var3 = english_name.replace("-", "").strip()
+            if excel_version != "" and self.data.get("*version") != excel_version:
+                print("new version excel found, re-build _dict_data.pkl.")
+                _data = self.make_dict()
+                self.data = _data
+                return "new version excel found, update finished."
 
-        print(chinese_name, english_name)
+            return "no need to update."
 
-        key_ = key_string_modify(email.split("@")[0])
-
-        # first part: key_ to result
-        dict_mapping_data[key_] = [
-            str(x)
-            for x in [chinese_name, english_name, department, email, phone, cellphone]
-        ]
-
-        # second part: query items to key
-        dict_mapping_data.setdefault(chinese_name, set()).add(key_)
-        dict_mapping_data.setdefault(chinese_name[0], set()).add(key_)
-        dict_mapping_data.setdefault(english_name, set()).add(key_)
-        dict_mapping_data.setdefault(english_name.lower(), set()).add(key_)  # lower
-        dict_mapping_data.setdefault(english_name_var2, set()).add(key_)
-        dict_mapping_data.setdefault(english_name_var2.lower(), set()).add(
-            key_
-        )  # lower
-        dict_mapping_data.setdefault(english_name_var3, set()).add(key_)
-        dict_mapping_data.setdefault(english_name_var3.lower(), set()).add(
-            key_
-        )  # lower
-        dict_mapping_data.setdefault(
-            "".join([x[0].upper() for x in english_name.split()]), set()
-        ).add(
-            key_
-        )  # abbrev eng name (eg, Shu-Jen Chen => SJC)
-        dict_mapping_data.setdefault(
-            "".join([x[0].upper() for x in english_name_var2.split()]), set()
-        ).add(
-            key_
-        )  # abbrev eng name
-        dict_mapping_data.setdefault(
-            "".join([x[0].upper() for x in english_name_var3.split()]), set()
-        ).add(
-            key_
-        )  # abbrev eng name
-
-        dict_mapping_data.setdefault(
-            english_name.split()[-1][0].upper()
-            + "".join([x[0].upper() for x in english_name.split()[:-1]]),
-            set(),
-        ).add(
-            key_
-        )  # abbrev eng name (eg, Shu Jen Chen => CSJ)
-        dict_mapping_data.setdefault(
-            english_name.split()[-1][0].upper()
-            + "".join([x[0].upper() for x in english_name_var2.split()[:-1]]),
-            set(),
-        ).add(
-            key_
-        )  # abbrev eng name
-        dict_mapping_data.setdefault(
-            english_name.split()[-1][0].upper()
-            + "".join([x[0].upper() for x in english_name_var3.split()[:-1]]),
-            set(),
-        ).add(
-            key_
-        )  # abbrev eng name
-
-        # email user id
-        dict_mapping_data.setdefault(email.split("@")[0].lower(), set()).add(key_)
-        # by Phone num
-        dict_mapping_data.setdefault(str(phone), set()).add(key_)
-        # by cell phone num
-        dict_mapping_data.setdefault(str(cellphone), set()).add(key_)
-        dict_mapping_data.setdefault(
-            str(cellphone).replace("-", "").replace(" ", ""), set()
-        ).add(key_)
-        # by department
-        dict_mapping_data.setdefault(str(department), set()).add(key_)
-        # by department's abbreviation
-        dict_mapping_data.setdefault(
-            DI_Apartment_Abbrev.get(str(department), str(department)), set()
-        ).add(key_)
-
-        # tokenized name
-        for n in (english_name, english_name_var2, english_name_var3, chinese_name):
-            for t in n.split(" "):
-                dict_mapping_data.setdefault(t.lower(), set()).add(key_)
-                dict_mapping_data.setdefault(t, set()).add(key_)
-
-    path_data = path.join(path.dirname(path_contact), "_dict_data")
-    save_obj_to_pickle(path_data, dict_mapping_data)
-    return dict_mapping_data
-
-
-class Contact:
-    def __init__(self, PATH_DICT_MAPPING_DATA):
-        self.PATH_DICT_MAPPING_DATA = PATH_DICT_MAPPING_DATA
-        self.DICT_MAPPING_DATA = self._load_data()
-        self.check_version()
-
-    def _load_data(self, rebuild=False):
-
-        if not path.isfile(self.PATH_DICT_MAPPING_DATA) or rebuild:
-
-            excel_file = locate_latest_contact_file(
-                path.split(self.PATH_DICT_MAPPING_DATA)[0]
-            )
-
-            if excel_file == "":
-                return read_pickle(self.PATH_DICT_MAPPING_DATA)
-            else:
-                return make_dict(excel_file)
-        else:
-            return read_pickle(self.PATH_DICT_MAPPING_DATA)
+        except Exception as e:
+            return e
 
     def key_exist(self, str_input_KEY):
-        return key_string_modify(str_input_KEY)
+        return self.key_string_modify(str_input_KEY)
 
     def add_searchTerm_to_key(self, str_input_Term, str_input_KEY):
-        self.DICT_MAPPING_DATA.setdefault(str_input_Term, set()).add(
-            key_string_modify(str_input_KEY)
+        self.data.setdefault(str_input_Term, set()).add(
+            self._key_string_modify(str_input_KEY)
         )
-        save_obj_to_pickle(
-            path.splitext(self.PATH_DICT_MAPPING_DATA)[0], self.DICT_MAPPING_DATA
-        )
+        self.save_pickle(path.splitext(self.path_file)[0], self.data)
         print(f'Successfuly add new search terms. "{str_input_Term}":"{str_input_KEY}"')
         return 0
 
     def add_contact_info(self, str_input_KEY, str_add_info):
-        self.DICT_MAPPING_DATA[key_string_modify(str_input_KEY)].append(str_add_info)
-        save_obj_to_pickle(
-            path.splitext(self.PATH_DICT_MAPPING_DATA)[0], self.DICT_MAPPING_DATA
-        )
+        self.data[self._key_string_modify(str_input_KEY)].append(str_add_info)
+        self.save_pickle(path.splitext(self.path_file)[0], self.data)
         print(
-            f'Successfuly add new info terms. "{self.DICT_MAPPING_DATA[key_string_modify(str_input_KEY)]}"'
+            f'Successfuly add new info terms. "{self.data[self._key_string_modify(str_input_KEY)]}"'
         )
         return 0
-
-    def re_build(self):
-
-        self.DICT_MAPPING_DATA = self._load_data(rebuild=True)
-
-    def rm_info(self, key):  # not yet implement
-        pass
-
-    def rm_term(self, term):  # not yet implement
-        pass
-
-    def check_version(self):
-        excel_version = locate_latest_contact_file(
-            path.split(self.PATH_DICT_MAPPING_DATA)[0], return_basename=True
-        )
-        if (
-            excel_version != ""
-            and self.DICT_MAPPING_DATA.get("*version") != excel_version
-        ):
-            print("new version excel found, re-build dictionary.")
-            self.re_build()
-
-
-def main():
-    print("# Loading")
-    make_dict(locate_latest_contact_file())
-    print(
-        "# ================================== Finish ================================== "
-    )
-
-
-if __name__ == "__main__":
-    main()

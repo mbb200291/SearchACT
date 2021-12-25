@@ -8,6 +8,7 @@ from pynput.keyboard import Key
 from modules.audio_input import audioRecords
 from modules.search import SearchACT
 
+
 # default value if there is no **kwargs
 PATH_OF_SCRIPT = path.dirname(argv[0])
 PATH_DICT_DATA = path.join(PATH_OF_SCRIPT, "_dict_data.pkl")
@@ -67,7 +68,7 @@ class keyboardCatcher(keyboard.Listener):
 
         if response["Success"] is True:
             input_text = response["prediction"]
-            searchact = self.SearchACT(self.contact.DICT_MAPPING_DATA)
+            searchact = self.SearchACT(self.contact.data)
             print(input_text, flush=True)
             ls_persons = searchact.get_person(input_text)
             if ls_persons:

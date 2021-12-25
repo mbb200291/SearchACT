@@ -1,9 +1,12 @@
 import os
+import sys
 import tkinter.filedialog
+
 import modules.calculator
 import modules.contact
 import modules.help_info
 import modules.search
+import SearchACT
 
 __version__ = "2.0.0"
 
@@ -22,7 +25,7 @@ class SearchACTModel:
             else:
                 data = []
                 for matchID in matchIDs:
-                    data.append(self.contact.DICT_MAPPING_DATA[matchID])
+                    data.append(self.contact.data[matchID])
                 return data
         except Exception:
             return [["Formula error!"]]
@@ -132,7 +135,11 @@ class SearchACTView(tkinter.Tk):
 
 class SearchACTController:
     def __init__(self):
-        self.rootPath = os.path.dirname(os.path.abspath(__file__))
+        self.rootPath = (
+            os.path.dirname(sys.executable)
+            if getattr(sys, "frozen", False)
+            else os.path.dirname(os.path.abspath(__file__))
+        )
         self.dataPath = os.path.join(self.rootPath, "_dict_data.pkl")
         self.view = SearchACTView()
         [contact, search] = self.loadContact()
@@ -160,16 +167,17 @@ class SearchACTController:
         self.view.destroy()
 
     def info(self, *args, **kwargs):
+        mver = SearchACT.__version__
         gver = __version__
-        text = f"Version {gver}"
+        text = f"Main version {mver}\nGUI version {gver}"
         self.view.openMsgWindow(text, "Info")
 
     def rebuildContactFiles(self, *args, **kwargs):
-        self.model.contact.re_build()
+        self.model.contact.rebuild_dict(cwd=self.rootPath)
 
     def loadContact(self, *args, **kwargs):
-        contact = modules.contact.Contact(self.dataPath)
-        search = modules.search.SearchACT(contact.DICT_MAPPING_DATA)
+        contact = modules.contact.Contact(self.rootPath)
+        search = modules.search.SearchACT(contact.data)
         return [contact, search]
 
     def loadCalculator(self, *args, **kwargs):
@@ -190,6 +198,7 @@ class SearchACTController:
         text = self.view.inputText.get()
         result = self.model.calculate(text)
         self.view.outputContainer.setData(result)
+
 
 if __name__ == "__main__":
     app = SearchACTController()
